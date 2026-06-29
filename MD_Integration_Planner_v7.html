@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MD Integration Planner</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:Arial,sans-serif;font-size:11px;line-height:1.4;color:#212529}
+input,select,button,th,td,label,span,div,p,a{font-family:inherit;font-size:inherit;color:inherit}
+:root{--navy:#0f2d4a;--navy2:#1a4068;--blue:#1e6fbf;--blt:#e8f2fb;--bmid:#bedaf5;--teal:#0d6e63;--amber:#92480a;--amlt:#fef3c7;--red:#b91c1c;--green:#166534;--glt:#dcfce7;--g50:#f8f9fa;--g100:#f1f3f5;--g200:#e9ecef;--g300:#dee2e6;--g400:#ced4da;--g500:#adb5bd;--g600:#6c757d;--g700:#495057;--g800:#343a40;--g900:#212529;--r:5px;--rl:9px;--sh:0 1px 4px rgba(0,0,0,.08)}
+body{background:var(--navy)}
+#rolePicker{padding:28px 16px;min-height:100vh;display:flex;align-items:flex-start;justify-content:center}
+.rp-box{background:#fff;border-radius:12px;padding:28px 32px;width:100%;max-width:420px;margin-top:16px}
+.rp-img{width:100%;border-radius:6px;margin-bottom:16px}
+.am-wordmark{font-family:Arial,Helvetica,sans-serif;font-weight:bold;color:var(--navy);letter-spacing:.12em;text-transform:uppercase}
+.rp-wordmark{font-size:20px;text-align:center;margin-bottom:14px}
+.qv-wordmark{font-size:18px;color:#fff;letter-spacing:.14em;padding:14px 20px 0}
+.rp-title{font-size:15px;font-weight:bold;color:var(--navy);margin-bottom:4px}
+.rp-sub{color:var(--g600);margin-bottom:20px;line-height:1.6}
+.rp-btn{width:100%;padding:11px 14px;border:2px solid var(--g300);border-radius:var(--r);background:#fff;cursor:pointer;margin-bottom:9px;text-align:left;display:flex;align-items:flex-start;gap:12px}
+.rp-btn:hover,.rp-btn.sel{border-color:var(--blue);background:var(--blt)}
+.rp-btn-title{font-weight:bold;color:var(--navy);display:block;margin-bottom:2px}
+.rp-btn-desc{color:var(--g600);display:block}
+.rp-icon{font-size:18px;flex-shrink:0;padding-top:2px}
+.rp-go{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-weight:bold;margin-top:6px;font-size:12px}
+.rp-go:disabled{background:var(--g400);cursor:not-allowed}
+.mp-box{background:#fff;border-radius:12px;padding:28px 32px;width:100%;max-width:420px;margin-top:16px}
+.mp-title{font-size:14px;font-weight:bold;color:var(--navy);margin-bottom:16px}
+.mp-lbl{font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.06em;color:var(--g600);margin-bottom:4px;display:block}
+.mp-sel{width:100%;padding:8px 10px;border:1px solid var(--g300);border-radius:var(--r);background:#fff;color:var(--g900);margin-bottom:14px}
+.mp-go{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-weight:bold;font-size:12px}
+.mp-go:disabled{background:var(--g400);cursor:not-allowed}
+.mp-back{background:none;border:none;color:var(--blue);cursor:pointer;text-decoration:underline;margin-top:10px;display:block;width:100%;text-align:center;padding:4px 0}
+#app{display:none}
+body.app-active{background:var(--g50)}
+.hdr{background:var(--navy);color:#fff;padding:0 18px;height:46px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.hdr-l{display:flex;align-items:center;gap:9px}
+.hdr-title{font-size:13px;font-weight:bold;color:#fff}
+.hdr-sub{font-size:10px;opacity:.6;color:#fff}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.hdr-pill{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:3px 12px;color:#fff}
+.hdr-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;color:rgba(255,255,255,.85);cursor:pointer;font-size:10px}
+.hdr-btn:hover{background:rgba(255,255,255,.2)}
+.save-ind{font-size:10px;opacity:.5;color:#fff}
+.bu-bar{background:var(--navy2);padding:4px 18px;display:flex;align-items:center;gap:9px;position:sticky;top:46px;z-index:299;flex-wrap:wrap}
+.bu-bar label{color:rgba(255,255,255,.7);font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.06em}
+.bu-bar select,.bu-bar input[type=text]{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:var(--r);padding:3px 8px}
+.bu-bar select option{background:var(--navy);color:#fff}
+.bu-bar input::placeholder{color:rgba(255,255,255,.45)}
+.bu-note{color:rgba(255,255,255,.38);font-size:10px;margin-left:auto}
+.nav{background:#fff;border-bottom:1px solid var(--g200);display:flex;padding:0 18px;position:sticky;top:76px;z-index:200;box-shadow:var(--sh);overflow-x:auto;white-space:nowrap}
+.ntab{padding:10px 15px;color:var(--g600);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:normal}
+.ntab:hover{color:var(--navy)}
+.ntab.active{color:var(--navy);border-bottom-color:var(--blue);font-weight:bold}
+.tc{background:var(--blt);color:var(--blue);border-radius:10px;padding:0 6px;margin-left:3px;font-size:10px}
+.main{max-width:1150px;margin:0 auto;padding:18px;background:var(--g50)}
+.card{background:#fff;border:1px solid var(--g200);border-radius:var(--rl);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+.chdr{padding:9px 15px;border-bottom:1px solid var(--g100);background:var(--g50);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ctitle{font-weight:bold;color:var(--g800)}
+.cbody{padding:14px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fg label{display:block;font-weight:bold;color:var(--g600);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;font-size:10px}
+.fg .sub{font-weight:normal;text-transform:none;letter-spacing:0;color:var(--g500)}
+.fg input,.fg select{width:100%;padding:5px 9px;border:1px solid var(--g300);border-radius:var(--r);background:#fff;color:var(--g900)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(30,111,191,.12)}
+.afg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.af-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--g500);font-weight:bold;margin-bottom:2px}
+.af-val{font-weight:bold;color:var(--navy)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r);cursor:pointer;border:1px solid transparent;font-weight:bold}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.bp{background:var(--navy);color:#fff;border-color:var(--navy)}.bp:hover:not(:disabled){background:var(--navy2)}
+.bs{background:#fff;color:var(--g700);border-color:var(--g300)}.bs:hover{background:var(--g50)}
+.bt{background:var(--teal);color:#fff;border-color:var(--teal)}.bt:hover{opacity:.88}
+.bg-g{background:var(--green);color:#fff;border-color:var(--green)}.bg-g:hover{opacity:.88}
+.bdel{background:none;color:var(--g400);border:none;cursor:pointer;padding:2px 5px;font-size:13px}.bdel:hover{color:var(--red)}
+.lk-delcol{background:none;border:none;color:var(--g400);cursor:pointer;font-size:12px;padding:0 2px}.lk-delcol:hover{color:var(--red)}
+.notice{background:var(--blt);border:1px solid var(--bmid);border-radius:var(--r);padding:7px 12px;color:var(--navy);margin-bottom:12px;line-height:1.6}
+.notice-green{background:var(--glt);border:1px solid #86efac;border-radius:var(--r);padding:8px 12px;color:var(--green);margin-bottom:12px;font-weight:bold}
+.legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.leg{display:flex;align-items:center;gap:4px;color:var(--g600)}
+.lbar{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+.week-sec{margin-bottom:22px}
+.week-hdr{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.wlbl{font-weight:bold;color:var(--navy);font-size:12px}
+.wdates{background:var(--blt);color:var(--blue);padding:2px 9px;border-radius:10px;font-weight:bold}
+.wct{color:var(--g500);margin-left:auto}
+.st{width:100%;border-collapse:collapse;table-layout:fixed}
+.st th{padding:5px 6px;text-align:left;font-weight:bold;color:var(--g600);border-bottom:1px solid var(--g200);background:var(--g50);text-transform:uppercase;letter-spacing:.04em;font-size:10px;white-space:nowrap;overflow:hidden}
+.st td{padding:3px 4px;border-bottom:1px solid var(--g100);vertical-align:middle}
+.st tr:last-child td{border-bottom:none}
+.st tr:hover td{background:var(--g50)}
+.dyn td:first-child{border-left:3px solid var(--blue)}
+.man td:first-child{border-left:3px solid var(--amber)}
+.ci{width:100%;border:none;background:transparent;padding:2px 3px;border-radius:3px;color:var(--g900)}
+.ci:focus{outline:none;background:var(--blt)}
+.ci.dim{color:var(--g600)}
+.ci.amber{color:var(--amber)}
+#ctxMenu{position:fixed;background:#fff;border:1px solid var(--g300);border-radius:var(--r);box-shadow:0 4px 14px rgba(0,0,0,.15);z-index:9999;padding:4px 0;min-width:190px;display:none}
+#ctxMenu button{display:block;width:100%;padding:7px 14px;border:none;background:none;cursor:pointer;text-align:left;color:var(--g800)}
+#ctxMenu button:hover{background:var(--blt);color:var(--blue)}
+.ssel{width:100%;border:none;border-radius:10px;padding:2px 4px;font-weight:bold;cursor:pointer}
+.sns{background:var(--g100);color:var(--g700)}.ssc{background:var(--glt);color:var(--green)}.sin{background:var(--amlt);color:var(--amber)}.sco{background:var(--blt);color:var(--blue)}
+.add-rw{width:100%;padding:5px;border:1px dashed var(--g300);border-radius:var(--r);background:none;cursor:pointer;color:var(--g500);margin-top:5px}
+.add-rw:hover{border-color:var(--blue);color:var(--blue);background:var(--blt)}
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.scard{border-radius:var(--r);padding:12px 14px}
+.slbl{text-transform:uppercase;letter-spacing:.05em;font-weight:bold;font-size:10px;margin-bottom:3px}
+.snum{font-size:28px;font-weight:bold;line-height:1}
+.trt{width:100%;border-collapse:collapse}
+.trt th{font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.05em;color:var(--g500);padding:6px 10px;text-align:center;border-bottom:1px solid var(--g200)}
+.trt th:first-child{text-align:left}
+.trt td{padding:6px 10px;text-align:center;border-bottom:1px solid var(--g100)}
+.trt td:first-child{text-align:left}
+.trt tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:1px 9px;border-radius:10px;font-weight:bold}
+.qvw{max-width:720px;margin:0 auto;background:#fff;padding:24px 28px;border:1px solid var(--g200);border-radius:var(--rl)}
+.qv-mast{background:var(--navy);margin:-24px -28px 20px;overflow:hidden}
+.qv-mast img{width:100%;display:block}
+.qv-mast-bar{padding:10px 20px;display:flex;justify-content:space-between;align-items:flex-end}
+.qv-mast-title{font-size:13px;font-weight:bold;color:#fff}
+.qv-mast-right{text-align:right}
+.qv-mast-bu{font-size:12px;font-weight:bold;color:#fff}
+.qv-mast-sl{font-size:10px;opacity:.7;color:#fff}
+.qv-name-block{border-left:4px solid var(--blue);padding-left:12px;margin-bottom:16px}
+.qv-name{font-size:16px;font-weight:bold;color:var(--navy)}
+.qv-meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}
+.qv-meta-item{display:flex;flex-direction:column;gap:1px}
+.qv-meta-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--g500);font-weight:bold}
+.qv-meta-val{font-weight:bold;color:var(--g800)}
+.qv-div{border:none;border-top:1px solid var(--g200);margin:14px 0}
+.qv-wlbl{font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);border-bottom:1px solid var(--bmid);padding-bottom:3px;margin-bottom:5px;display:flex;justify-content:space-between}
+.qv-wd{font-weight:normal;text-transform:none;letter-spacing:0;color:var(--g500)}
+.qv-row{display:grid;grid-template-columns:1fr 180px;gap:8px;padding:5px 0;border-bottom:1px solid var(--g100);align-items:start}
+.qv-top{font-weight:bold}
+.qv-att{color:var(--g600);text-align:right}
+.qv-wk{margin-bottom:18px}
+.qv-foot{margin-top:20px;border-top:1px solid var(--g200);padding-top:10px;color:var(--g400);font-size:10px;text-align:center}
+.ltbl{width:100%;border-collapse:collapse}
+.ltbl th{font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.04em;color:var(--g500);padding:5px 7px;border-bottom:1px solid var(--g200);background:var(--g50);text-align:left;white-space:nowrap}
+.ltbl td{padding:3px 5px;border-bottom:1px solid var(--g100)}
+.ltbl tr:last-child td{border-bottom:none}
+.li{width:100%;border:1px solid transparent;border-radius:3px;padding:3px 5px;background:transparent;color:var(--g900)}
+.li:focus{outline:none;border-color:var(--blue);background:var(--blt)}
+.sltag{background:var(--blt);color:var(--blue);padding:1px 6px;border-radius:3px;font-weight:bold;white-space:nowrap;display:inline-block;margin-right:3px}
+#tmplBody input{color:var(--g900)!important}
+.bu-fold{margin-bottom:16px}
+.bu-fold-hdr{display:flex;align-items:center;gap:8px;padding:8px 13px;background:var(--g100);border:1px solid var(--g200);border-radius:var(--r);cursor:pointer;margin-bottom:8px;font-weight:bold;color:var(--navy)}
+.bu-fold-hdr:hover{background:var(--blt)}
+.bu-fold-ct{background:var(--blue);color:#fff;border-radius:10px;padding:0 7px;font-size:10px;font-weight:bold}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
+.lib-card{background:#fff;border:1px solid var(--g200);border-radius:var(--rl);padding:11px;display:flex;flex-direction:column;gap:4px}
+.lib-card:hover{border-color:var(--blue)}
+.lib-name{font-weight:bold;color:var(--navy);font-size:12px}
+.lib-meta{color:var(--g600)}
+.lib-dt{color:var(--g400);font-size:10px}
+.lib-acts{display:flex;gap:5px;margin-top:5px}
+.empty-lib{text-align:center;padding:36px;color:var(--g500)}
+.sp-code{background:var(--g50);border:1px solid var(--g300);border-radius:var(--r);padding:10px;margin:8px 0;font-family:monospace;font-size:11px;word-break:break-all;line-height:1.6}
+.md-check{width:14px;height:14px;cursor:pointer;accent-color:var(--green)}
+.md-done td:not(:first-child){text-decoration:line-through;color:var(--g400)!important}
+.instr-step{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--g100)}
+.instr-step:last-child{border-bottom:none}
+.instr-num{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;flex-shrink:0;margin-top:1px}
+.instr-title{font-weight:bold;color:var(--navy);margin-bottom:2px}
+.instr-desc{color:var(--g700);line-height:1.7}
+
+/* SharePoint Sync */
+.sp-status{display:flex;align-items:center;gap:7px;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:bold;cursor:default}
+.sp-status.idle{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+.sp-status.syncing{background:rgba(255,193,7,.2);color:#ffc107}
+.sp-status.ok{background:rgba(22,101,52,.3);color:#86efac}
+.sp-status.err{background:rgba(185,28,28,.3);color:#fca5a5}
+.sp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:currentColor}
+.sp-setup-card{border:2px dashed var(--blue);border-radius:var(--rl);padding:18px;margin-bottom:14px;background:var(--blt)}
+
+@page{size:portrait;margin:12mm 10mm}
+@media print{#rolePicker,#app .hdr,#app .bu-bar,#app .nav,.no-print{display:none!important}body,#app{background:#fff!important}.main{max-width:100%;padding:0}.qvw{border:none;box-shadow:none;padding:0;max-width:100%}.qv-mast,*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.st{font-size:8px;table-layout:auto}.st th,.st td{padding:2px 3px}.week-sec .card{overflow:visible}.week-sec{page-break-inside:avoid}}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div id="rolePicker">
+  <div class="rp-box">
+    <div class="am-wordmark rp-wordmark">Alvarez &amp; Marsal</div>
+    <div class="rp-title">MD Integration Planner</div>
+    <div class="rp-sub">First 30 Days</div>
+    <button class="rp-btn" id="rpBtnBuilder" type="button">
+      <span class="rp-icon">&#9776;</span>
+      <div><span class="rp-btn-title">I am building a schedule</span><span class="rp-btn-desc">Create and track a new MD&rsquo;s onboarding schedule</span></div>
+    </button>
+    <button class="rp-btn" id="rpBtnAdmin" type="button">
+      <span class="rp-icon">&#9881;</span>
+      <div><span class="rp-btn-title">I am an admin</span><span class="rp-btn-desc">Configure service lines, roster, onboarding dates, and templates</span></div>
+    </button>
+    <button class="rp-go" id="rpGoBtn" type="button" disabled>Continue</button>
+  </div>
+</div>
+
+
+<div id="app">
+<div class="hdr">
+  <div class="hdr-l"><div><div class="hdr-title">MD Integration Planner</div><div class="hdr-sub">First 30 Days</div></div></div>
+  <div class="hdr-r"><span class="save-ind" id="saveInd">Auto-saved</span><span class="sp-status idle" id="spStatus" title="SharePoint Sync"><span class="sp-dot"></span><span id="spStatusTxt">SP: Not configured</span></span><span class="hdr-pill" id="hdrPill">No MD selected</span><button class="hdr-btn" id="paSaveBtn" type="button" style="background:rgba(22,163,74,.35);border-color:rgba(22,163,74,.6)" title="Push current data to SharePoint">&#8593; Save to SP</button><button class="hdr-btn" id="switchModeBtn" type="button">Switch Mode</button><button class="hdr-btn" id="signOutBtn" type="button">Sign Out</button></div>
+</div>
+<div class="bu-bar" id="buBar">
+  <label>BU:</label>
+  <select id="buProfileSel"></select>
+  <button class="btn" id="saveBuBtn" type="button" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.28);padding:3px 10px;font-weight:normal">Save BU</button>
+  <button class="btn" id="delBuBtn" type="button" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.18);padding:3px 10px;font-weight:normal">Delete</button>
+  <span style="color:rgba(255,255,255,.3)">|</span>
+  <input type="text" id="newBuInput" placeholder="New BU / Region name..." style="width:160px">
+  <button class="btn" id="newBuBtn" type="button" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.28);padding:3px 10px;font-weight:normal">+ Add BU / Region</button>
+  <span class="bu-note">Source Data &amp; template per BU</span>
+</div>
+<div class="nav" id="mainNav">
+  <button class="ntab active" id="tab-instructions" data-tab="instructions" type="button">Instructions</button>
+  <button class="ntab" id="tab-input" data-tab="input" type="button">Input</button>
+  <button class="ntab" id="tab-schedule" data-tab="schedule" type="button">Schedule <span class="tc" id="schedCount">0</span></button>
+  <button class="ntab" id="tab-summary" data-tab="summary" type="button">Summary</button>
+  <button class="ntab" id="tab-quickview" data-tab="quickview" type="button">Print View</button>
+  <button class="ntab" id="tab-saved" data-tab="saved" type="button">Saved Schedules <span class="tc" id="libCount">0</span></button>
+  <button class="ntab admin-only" id="tab-template" data-tab="template" type="button">Schedule Template</button>
+  <button class="ntab admin-only" id="tab-source" data-tab="source" type="button">Source Data</button>
+</div>
+
+<div id="pane-instructions" class="main">
+<div style="max-width:760px;margin:0 auto">
+<div style="margin-bottom:16px"><div style="font-size:15px;font-weight:bold;color:var(--navy);margin-bottom:3px">How to Use This Tool</div><div style="color:var(--g600)">Quick reference for building and sharing MD onboarding schedules</div></div>
+<div class="card"><div class="chdr" style="background:var(--navy)"><span class="ctitle" style="color:#fff">Building a Schedule</span></div>
+<div class="cbody" style="padding:0"><div style="padding:10px 16px">
+<div class="instr-step"><div class="instr-num">1</div><div><div class="instr-title">Select your BU</div><div class="instr-desc">Use the blue bar. Each BU stores its own service line contacts, MD roster, onboarding dates, and schedule template.</div></div></div>
+<div class="instr-step"><div class="instr-num">2</div><div><div class="instr-title">Input tab</div><div class="instr-desc">Enter MD name, BU, service line, start date, city, EA, PM, mentor. Contacts auto-fill. The 2026 A&amp;M onboarding dates are pre-loaded and auto-match within 28 days of start date.</div></div></div>
+<div class="instr-step"><div class="instr-num">3</div><div><div class="instr-title">Generate Schedule</div><div class="instr-desc">Click Generate. Builds a full schedule from the BU template. SL MDs from the roster appear as individual rows (First Last). BU name replaces [BU] in titles like &ldquo;CPI Finance Overview.&rdquo;</div></div></div>
+<div class="instr-step"><div class="instr-num">4</div><div><div class="instr-title">Fill dates &amp; times</div><div class="instr-desc"><strong>Right-click</strong> any Date or Time cell and choose Fill Down to copy it to empty rows below in that week. Standard Ctrl+C / Ctrl+V also works in any cell.</div></div></div>
+<div class="instr-step"><div class="instr-num">5</div><div><div class="instr-title">Save the schedule</div><div class="instr-desc">Click Save Schedule to store this MD's plan. Saved plans appear under <strong>Saved Schedules</strong>, grouped by BU / Region.</div></div></div>
+<div class="instr-step"><div class="instr-num">6</div><div><div class="instr-title">Print View</div><div class="instr-desc">Print View produces a clean PDF you can save or share.</div></div></div>
+</div></div></div>
+</div></div>
+
+<div id="pane-input" class="main" style="display:none">
+<div class="notice">Blue border = auto-filled &middot; Amber = manual &middot; Saves automatically</div>
+<div class="card"><div class="chdr"><span class="ctitle">New MD Information</span></div><div class="cbody">
+<div class="fg2 fg">
+<div><label>MD Full Name <span class="sub">(First Last)</span></label><input type="text" id="inp-mdName" placeholder="First Last"></div>
+<div><label>MD Email</label><input type="email" id="inp-mdEmail" placeholder="newmd@alvarezandmarsal.com"></div>
+<div><label>Business Unit (BU)</label><select id="inp-bu-sel"></select></div>
+<div><label>Service Line</label><select id="inp-sl"></select></div>
+<div><label>Start Date</label><input type="date" id="inp-startDate"></div>
+<div><label>Practice Manager (PM) <span class="sub">&middot; auto-fills from SL leader</span></label><input type="text" id="inp-pm" placeholder="Auto-filled or override"></div>
+<div><label>Executive Assistant (EA)</label><input type="text" id="inp-ea" placeholder="Name"></div>
+<div><label>MD Mentor</label><input type="text" id="inp-buddy" placeholder="Name"></div>
+<div><label>City <span class="sub">&middot; from Key Contacts</span></label><select id="inp-city"><option value="">-- Select City --</option></select><input type="text" id="inp-city-other" placeholder="Enter city" style="display:none;margin-top:6px"></div>
+</div></div></div>
+<div class="card"><div class="chdr"><span class="ctitle">Auto-filled Contacts &mdash; <span id="slLbl">&mdash;</span></span><span style="color:var(--g500)">Edit in Source Data</span></div>
+<div class="cbody"><div class="afg" id="afGrid"></div></div></div>
+<div class="card"><div class="chdr"><span class="ctitle">Detected A&amp;M Onboarding Session</span><span style="color:var(--g500)">2026 dates pre-loaded &middot; matches within 28 days</span></div>
+<div class="cbody" id="obPrev" style="color:var(--g500)">Enter a start date to detect the matching session.</div></div>
+<div class="card"><div class="chdr"><span class="ctitle">Cross-BU MD Introductions</span><button class="btn bs" id="addCrossBtn" type="button">+ Add Person</button></div>
+<div style="overflow-x:auto"><table class="ltbl" style="table-layout:fixed"><colgroup><col style="width:18%"><col style="width:10%"><col style="width:7%"><col style="width:23%"><col style="width:14%"><col style="width:24%"><col style="width:4%"></colgroup>
+<thead><tr><th>Name (Last, First)</th><th>BU</th><th>Week</th><th>Topic / Reason</th><th>Scheduler</th><th>Email <span style="font-weight:normal;color:var(--g500)">&middot; auto from Key Contacts</span></th><th></th></tr></thead>
+<tbody id="crossBody"></tbody></table></div>
+<div style="padding:7px 12px;border-top:1px solid var(--g100)"><button class="btn bs" id="addCrossBtn2" type="button">+ Add Person</button></div></div>
+<div style="display:flex;align-items:center;gap:10px">
+<button class="btn bp" id="genBtn" type="button" disabled>Generate Schedule</button>
+<button class="btn bs" id="clearInpBtn" type="button">Start New / Clear</button>
+<span style="color:var(--g500)" id="genHint">Enter MD name and start date to continue</span>
+</div>
+</div>
+
+<div id="pane-schedule" class="main" style="display:none">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+<div><div style="font-size:14px;font-weight:bold;color:var(--navy)" id="schedTitle">&mdash;</div><div style="color:var(--g500)" id="schedMeta"></div></div>
+<div class="no-print" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<div class="legend"><div class="leg"><div class="lbar" style="background:var(--blue)"></div>Auto-filled</div><div class="leg"><div class="lbar" style="background:var(--amber)"></div>Manual</div></div>
+<button class="btn bs" id="exportXlsxBtn" type="button">Export to Excel</button>
+<button class="btn bs" id="saveSchedBtn" type="button">Save Schedule</button>
+</div></div>
+<div class="notice" style="font-size:10px">Right-click any Date or Time cell to Fill Down to empty rows below. Ctrl+C / Ctrl+V works in all cells, including pasting a block of cells from Excel.</div>
+<div id="introWarn" style="display:none"></div>
+<div id="schedContent"></div>
+</div>
+<div id="pane-summary" class="main" style="display:none">
+<div class="stat-cards" id="statCards"></div>
+<div class="card"><div class="chdr"><span class="ctitle">Status by Week</span></div><div style="overflow-x:auto"><table class="trt" id="trkTable"></table></div></div>
+</div>
+
+<div id="pane-quickview" class="main" style="display:none">
+<div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<span style="color:var(--g500)">Clean printable output &mdash; navigation hides when printed.</span>
+<button class="btn bt" id="printBtn" type="button">Print / Save as PDF</button>
+</div>
+<div class="qvw">
+<div class="qv-mast"><div class="am-wordmark qv-wordmark">Alvarez &amp; Marsal</div>
+<div class="qv-mast-bar"><div><div class="qv-mast-title">New MD Onboarding | First 30 Days Schedule</div></div>
+<div class="qv-mast-right"><div class="qv-mast-bu" id="qvBu">&mdash;</div><div class="qv-mast-sl" id="qvSl"></div></div></div></div>
+<div class="qv-name-block"><div class="qv-name" id="qvName">&mdash;</div><div class="qv-meta" id="qvMeta"></div></div>
+<hr class="qv-div"><div id="qvWeeks"></div>
+<div class="qv-foot">Prepared by BU Operations &middot; A&amp;M MD Onboarding Program</div>
+</div></div>
+
+<div id="pane-saved" class="main" style="display:none">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+<div><div style="font-size:13px;font-weight:bold;color:var(--navy)">Saved Schedules</div><div style="color:var(--g500)">Grouped by BU &middot; use Export All Data in Source Data to share with colleagues</div></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn bs" id="exportLibBtn" type="button">Export Library (JSON)</button>
+<button class="btn bs" id="importLibBtn" type="button">Import Library (JSON)</button>
+</div></div>
+<div id="libContainer"></div>
+<div class="empty-lib" id="libEmpty" style="display:none">No saved schedules yet. Generate and save a schedule to see it here.</div>
+</div>
+
+<div id="pane-template" class="main" style="display:none">
+<div style="background:var(--amber);color:#fff;padding:9px 14px;border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><span style="font-weight:bold">Remember to Save BU Profile after template changes.</span><button class="btn" id="saveBuFromTmpl" type="button" style="background:#fff;color:var(--amber);border-color:#fff;padding:4px 14px;flex-shrink:0">Save BU Profile Now</button></div>
+<div class="notice">All text is black. Uncheck to exclude a row. Label changes in Source Data carry here automatically. [BU] in topics resolves to your BU name (e.g. CPI Finance Overview).</div>
+<div class="card">
+<div class="chdr"><span class="ctitle">Schedule Template &mdash; <span id="tmplBuLabel">&mdash;</span></span>
+<div style="display:flex;gap:7px"><button class="btn bg-g" id="saveTmplBtn" type="button">Save Template</button><button class="btn bs" id="addTmplRowBtn" type="button">+ Add Row</button></div></div>
+<div style="padding:6px 14px;background:var(--g50);border-bottom:1px solid var(--g100);color:var(--g700)">Tokens: <code>[SL]</code> <code>[BU]</code> <code>[EA]</code> <code>[PM]</code> <code>[OpsLead]</code> <code>[PBP]</code> <code>[Finance]</code> <code>[Risk]</code> <code>[People]</code> <code>[Marketing]</code> <code>[Insight]</code> <code>[KM]</code> <code>[Mentor]</code> resolve when generating.</div>
+<div style="overflow-x:auto"><table class="ltbl" style="table-layout:fixed">
+<colgroup><col style="width:3%"><col style="width:24%"><col style="width:6%"><col style="width:15%"><col style="width:12%"><col style="width:7%"><col style="width:9%"><col style="width:20%"><col style="width:4%"></colgroup>
+<thead><tr><th>On</th><th>Topic</th><th>Week</th><th>Attendees</th><th>Scheduler</th><th>Duration</th><th>Location</th><th>Notes</th><th></th></tr></thead>
+<tbody id="tmplBody"></tbody></table></div>
+<div style="padding:7px 12px;border-top:1px solid var(--g100);display:flex;gap:8px">
+<button class="btn bg-g" id="saveTmplBtn2" type="button">Save Template</button>
+<button class="btn bs" id="addTmplRowBtn2" type="button">+ Add Row</button>
+</div></div></div>
+
+<div id="pane-source" class="main" style="display:none">
+
+<!-- SharePoint Sync Card -->
+<div id="spSetupCard" style="border:2px solid var(--blue);border-radius:var(--rl);margin-bottom:14px;overflow:hidden">
+  <div style="background:var(--navy);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <span style="font-weight:bold;color:#fff;font-size:13px">&#9889; SharePoint Sync</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="spStatusPill" style="font-size:10px;font-weight:bold;padding:2px 12px;border-radius:20px;background:rgba(255,255,255,.12);color:#fbbf24">Starting...</span>
+      <button id="spConfigToggle" type="button" title="Edit SharePoint folder settings" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:2px 10px;color:rgba(255,255,255,.6);cursor:pointer;font-size:10px">&#9881;</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;background:#fff">
+
+    <!-- LOAD FLOW -->
+    <div style="padding:14px 16px;border-right:1px solid var(--g200)">
+      <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:var(--g500);margin-bottom:8px">&#8595; Load Flow</div>
+      <div style="font-size:11px;color:var(--g700);margin-bottom:10px;line-height:1.6">Open an existing MD plan from SharePoint, or create a new one from scratch.</div>
+      <button id="spOpenMdBtn" type="button" style="width:100%;background:#7c3aed;color:#fff;border:none;border-radius:var(--r);padding:8px 14px;font-weight:bold;cursor:pointer;font-size:11px">&#128197; Open / New MD</button>
+      <div style="margin-top:8px;font-size:11px;color:var(--g600);display:flex;align-items:center;gap:6px">
+        <span>Active:</span>
+        <strong id="spActiveMdFile" style="color:var(--red)">No MD selected</strong>
+      </div>
+    </div>
+
+    <!-- SAVE FLOW -->
+    <div style="padding:14px 16px">
+      <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:var(--g500);margin-bottom:8px">&#8593; Save Flow</div>
+      <div style="font-size:11px;color:var(--g700);margin-bottom:10px;line-height:1.6">Push the current plan to SharePoint. Pull latest to reload if a colleague has made changes.</div>
+      <div style="display:flex;gap:8px">
+        <button id="spPushBtn" type="button" style="flex:1;background:#1e6fbf;color:#fff;border:none;border-radius:var(--r);padding:8px 10px;font-weight:bold;cursor:pointer;font-size:11px">&#8593; Push</button>
+        <button id="spPullBtn" type="button" style="flex:1;background:#166534;color:#fff;border:none;border-radius:var(--r);padding:8px 10px;font-weight:bold;cursor:pointer;font-size:11px">&#8595; Pull latest</button>
+      </div>
+      <div style="margin-top:8px;font-size:10px;color:var(--g500)" id="spLastSync"></div>
+    </div>
+
+  </div>
+</div>
+<!-- compat stubs -->
+<input type="hidden" id="spSiteUrl"><input type="hidden" id="spLibName" value="SiteAssets"><input type="hidden" id="spFolder"><input type="hidden" id="spFileName"><span id="spStatus" style="display:none"></span><span id="spStatusTxt" style="display:none"></span>
+
+<div style="background:var(--amber);color:#fff;padding:9px 14px;border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><span style="font-weight:bold">Remember to Save BU / Region Profile after Source Data changes.</span><button class="btn" id="saveBuFromSource" type="button" style="background:#fff;color:var(--amber);border-color:#fff;padding:4px 14px;flex-shrink:0">Save Profile Now</button></div>
+<div class="notice">Label changes auto-carry into new schedules and the template.</div>
+<div class="card"><div class="chdr"><span class="ctitle">Service Line Lookup</span>
+<div style="display:flex;gap:7px;flex-wrap:wrap">
+<button class="btn bs" id="uploadLkCsvBtn" type="button">Upload CSV</button>
+<button class="btn bs" id="dlLkTemplateBtn" type="button">Template</button>
+<button class="btn bs" id="addSlBtn" type="button">+ Add Row</button>
+<button class="btn bs" id="addLkColBtn" type="button">+ Column</button>
+<button class="btn bs" id="resetLkBtn" type="button" style="color:var(--red)">Reset Defaults</button>
+</div></div>
+<div style="padding:6px 14px;background:var(--g50);border-bottom:1px solid var(--g100);color:var(--g600)">CSV matched by <strong>header name</strong> (custom column names supported). Download Template for the exact headers. <label style="margin-left:8px;font-weight:bold;color:var(--navy)"><input type="checkbox" id="lkCsvOverwrite" style="vertical-align:middle"> Overwrite existing rows on upload</label><input type="file" id="lkCsvUp" accept=".csv" style="display:none"></div>
+<div style="overflow-x:auto"><table class="ltbl" id="lkTable" style="min-width:760px">
+<thead id="lkHead"></thead>
+<tbody id="lkBody"></tbody></table></div>
+<div style="padding:7px 12px;border-top:1px solid var(--g100)"><button class="btn bs" id="addSlBtn2" type="button">+ Add Service Line</button></div></div>
+<div class="card"><div class="chdr"><span class="ctitle">A&amp;M Onboarding Sessions</span>
+<div style="display:flex;gap:7px">
+<button class="btn bs" id="uploadObCsvBtn" type="button">Upload CSV</button>
+<button class="btn bs" id="dlObTemplateBtn" type="button">Template</button>
+<button class="btn bs" id="addObBtn" type="button">+ Add</button>
+<button class="btn bs" id="reloadObBtn" type="button">Reload 2026 Defaults</button>
+</div></div>
+<div style="padding:6px 14px;background:var(--g50);border-bottom:1px solid var(--g100);color:var(--g600)">
+2026 North America dates pre-loaded. Upload next year&rsquo;s CSV: <strong>Session Name, Date (YYYY-MM-DD), Time (HH:MM), Location, Notes</strong>
+<input type="file" id="obCsvUp" accept=".csv" style="display:none"></div>
+<div style="overflow-x:auto"><table class="ltbl" style="table-layout:fixed">
+<colgroup><col style="width:20%"><col style="width:13%"><col style="width:10%"><col style="width:16%"><col style="width:33%"><col style="width:8%"></colgroup>
+<thead><tr><th>Session Name</th><th>Date</th><th>Time</th><th>Location</th><th>Notes</th><th></th></tr></thead>
+<tbody id="obBody"></tbody></table></div>
+<div style="padding:7px 12px;border-top:1px solid var(--g100)"><button class="btn bs" id="addObBtn2" type="button">+ Add Session</button></div></div>
+<div class="card"><div class="chdr"><span class="ctitle">Key Contacts <span style="font-weight:normal;color:var(--g500);font-size:10px">&middot; MDs &amp; role contacts with emails</span></span>
+<div style="display:flex;gap:7px;flex-wrap:wrap">
+<button class="btn bs" id="uploadCsvBtn" type="button">Upload CSV</button>
+<button class="btn bs" id="dlTemplateBtn" type="button">Template</button>
+<button class="btn bs" id="addRosterBtn" type="button">+ Add</button>
+</div></div>
+<div style="padding:6px 14px;background:var(--g50);border-bottom:1px solid var(--g100);color:var(--g600)">
+CSV: <strong>Name (First Last), Level, Service Line, City, Email</strong><input type="file" id="csvUp" accept=".csv" style="display:none"></div>
+<div style="overflow-x:auto"><table class="ltbl" style="table-layout:fixed">
+<colgroup><col style="width:22%"><col style="width:10%"><col style="width:18%"><col style="width:16%"><col style="width:30%"><col style="width:4%"></colgroup>
+<thead><tr><th>Name (First Last)</th><th>Level</th><th>Service Line</th><th>City</th><th>Email</th><th></th></tr></thead>
+<tbody id="rosterBody"></tbody></table></div>
+<div style="padding:7px 12px;border-top:1px solid var(--g100)"><button class="btn bs" id="addRosterBtn2" type="button">+ Add Person</button></div></div>
+<div class="card"><div class="chdr"><span class="ctitle">Watch Video Links</span><span style="color:var(--g500)">Paste URLs &mdash; topic becomes a clickable link</span></div>
+<div style="overflow-x:auto"><table class="ltbl" style="table-layout:fixed">
+<colgroup><col style="width:36%"><col style="width:56%"><col style="width:8%"></colgroup>
+<thead><tr><th>Video Title</th><th>URL</th><th></th></tr></thead>
+<tbody id="videoBody"></tbody></table></div>
+<div style="padding:7px 12px;border-top:1px solid var(--g100)"><button class="btn bs" id="addVideoBtn" type="button">+ Add Video</button></div></div>
+<div class="card"><div class="chdr"><span class="ctitle">Export / Import All Data</span></div>
+<div class="cbody">
+<div class="notice-green">Exports all BU / Region profiles, templates, rosters, onboarding dates, and saved schedules into one JSON file. Use this for a local backup or to move data between environments.</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn bp" id="exportDataBtn" type="button">Export All Data (JSON)</button>
+<button class="btn bs" id="importDataBtn" type="button">Import Data (JSON)</button>
+</div></div></div>
+</div></div>
+
+<div id="ctxMenu"><button id="ctxFillDown" type="button">Fill Down (empty rows below)</button><button id="ctxFillAll" type="button">Fill Down (all rows below)</button></div>
+
+<script>
+
+(function(){
+'use strict';
+
+var DEF_LK=[{"sl": "CTS", "leader": "Richard Holt", "sgl": "Alyssa Davis", "hrbp": "Mackenzie Cockerill", "finance": "Kindra Bradshaw", "risk": "Clark Caperton", "people": "Leigh Gauthier", "marketing": "Meg Huff", "insight": "Rachel Stead", "km": "Lauren Trees"}, {"sl": "CFO Services", "leader": "Tiffany Brown", "sgl": "Beth Vasile", "hrbp": "Mackenzie Cockerill", "finance": "Kindra Bradshaw", "risk": "Clark Caperton", "people": "Nicole Carnella", "marketing": "Meg Huff", "insight": "Rachel Stead", "km": "Lauren Trees"}, {"sl": "Supply Chain", "leader": "Sean Laffere", "sgl": "TBD", "hrbp": "Mackenzie Cockerill", "finance": "Kindra Bradshaw", "risk": "Clark Caperton", "people": "Nicole Carnella", "marketing": "Meg Huff", "insight": "Rachel Stead", "km": "Lauren Trees"}, {"sl": "DTS", "leader": "Jean Hill", "sgl": "Eric Pablo", "hrbp": "Mackenzie Cockerill", "finance": "Kindra Bradshaw", "risk": "Clark Caperton", "people": "Leigh Gauthier", "marketing": "Meg Huff", "insight": "Rachel Stead", "km": "Lauren Trees"}, {"sl": "TOP", "leader": "Matt Campbell", "sgl": "Mike Harrison", "hrbp": "Mackenzie Cockerill", "finance": "Kindra Bradshaw", "risk": "Clark Caperton", "people": "Nicole Carnella", "marketing": "Meg Huff", "insight": "Rachel Stead", "km": "Lauren Trees"}, {"sl": "TDI", "leader": "Andy Walker", "sgl": "Caitlin Dealy", "hrbp": "Mackenzie Cockerill", "finance": "Kindra Bradshaw", "risk": "Clark Caperton", "people": "Leigh Gauthier", "marketing": "Meg Huff", "insight": "Rachel Stead", "km": "Lauren Trees"}];
+var DEF_TEMPLATE=[{"id": "t1", "enabled": true, "topic": "General Onboarding", "week": "1", "attendees": "BU Onboarding", "scheduler": "Onboarding", "duration": "TBD", "notes": "Auto-fills date from A&M Onboarding Sessions", "isDynamic": "ob", "isManual": false}, {"id": "t2", "enabled": true, "topic": "[SL] Leader 1:1", "week": "1", "attendees": "[PM]", "scheduler": "EA", "duration": "30 min", "notes": "Recommend weekly first month, bi-weekly for first 6 months", "isDynamic": "pm", "isManual": false}, {"id": "t3", "enabled": true, "topic": "HR Introduction", "week": "1", "attendees": "[HRBP]", "scheduler": "EA", "duration": "30 min", "notes": "", "isDynamic": "hrbp", "isManual": false}, {"id": "t4", "enabled": true, "topic": "Team Lunch or Dinner", "week": "1", "attendees": "Team Contact", "scheduler": "EA", "duration": "1.5 hrs", "notes": "", "isDynamic": "", "isManual": true}, {"id": "t5", "enabled": true, "topic": "Executive Assistant (EA) Introduction", "week": "1", "attendees": "[EA]", "scheduler": "EA", "duration": "30 min", "notes": "", "isDynamic": "ea", "isManual": false}, {"id": "t6", "enabled": true, "topic": "[BU] Operations Overview", "week": "1", "attendees": "[SGL]", "scheduler": "EA", "duration": "1 hr", "notes": "", "isDynamic": "sgl", "isManual": false}, {"id": "t7", "enabled": true, "topic": "MD Mentor Introduction", "week": "1", "attendees": "[Mentor]", "scheduler": "EA", "duration": "30 min", "notes": "Recommend weekly first month, monthly for first 6 months", "isDynamic": "buddy", "isManual": false}, {"id": "t8", "enabled": true, "topic": "Watch: A&M Advantage (Steve Wallace, COO)", "week": "1", "attendees": "N/A", "scheduler": "N/A", "duration": "45 min", "notes": "", "isDynamic": "video:Advantage", "isManual": false}, {"id": "t9", "enabled": true, "topic": "[SL] Overview", "week": "2", "attendees": "[SGL]", "scheduler": "EA", "duration": "1 hr", "notes": "", "isDynamic": "sgl", "isManual": false}, {"id": "t10", "enabled": true, "topic": "Watch: A&M Economics (Raph Frydman, CFO)", "week": "2", "attendees": "N/A", "scheduler": "N/A", "duration": "1.5 hrs", "notes": "", "isDynamic": "video:Economics", "isManual": false}, {"id": "t11", "enabled": true, "topic": "[BU] Finance Overview", "week": "2", "attendees": "[Finance]", "scheduler": "EA", "duration": "1 hr", "notes": "[BU] in title auto-fills with BU name (e.g. CPI Finance Overview)", "isDynamic": "finance", "isManual": false}, {"id": "t12", "enabled": true, "topic": "Watch: Engagement Lifecycle & Risk (James Chvatal, CRO)", "week": "2", "attendees": "N/A", "scheduler": "N/A", "duration": "45 min", "notes": "", "isDynamic": "video:Lifecycle", "isManual": false}, {"id": "t13", "enabled": true, "topic": "[BU] Risk & Contracting Overview", "week": "2", "attendees": "[Risk]", "scheduler": "EA", "duration": "30 min", "notes": "[BU] in title auto-fills with BU name", "isDynamic": "risk", "isManual": false}, {"id": "t14", "enabled": true, "topic": "People / Performance Management Overview", "week": "2", "attendees": "[People]", "scheduler": "EA", "duration": "30 min", "notes": "", "isDynamic": "people", "isManual": false}, {"id": "t15", "enabled": true, "topic": "Marketing / Relationship Management Overview", "week": "2", "attendees": "[Marketing]", "scheduler": "EA", "duration": "30 min", "notes": "", "isDynamic": "marketing", "isManual": false}, {"id": "t16", "enabled": true, "topic": "[SL] MD Introductions (1:1)", "week": "2", "attendees": "Service Line MDs", "scheduler": "EA", "duration": "30 min", "notes": "One row per SL MD from the roster", "isDynamic": "slMDs", "isManual": false}, {"id": "t17", "enabled": true, "topic": "Knowledge Management", "week": "3", "attendees": "[KM]", "scheduler": "EA", "duration": "30 min", "notes": "", "isDynamic": "km", "isManual": false}, {"id": "t18", "enabled": true, "topic": "Insight Center Overview", "week": "3", "attendees": "[Insight]", "scheduler": "EA", "duration": "30 min", "notes": "", "isDynamic": "insight", "isManual": false}, {"id": "t19", "enabled": true, "topic": "Local [BU] MD Introductions (1:1)", "week": "3", "attendees": "Local BU MDs", "scheduler": "EA", "duration": "30 min", "notes": "One row per local MD from roster by city", "isDynamic": "locMDs", "isManual": false}, {"id": "t20", "enabled": true, "topic": "Cross-BU MD Introductions", "week": "4", "attendees": "Cross-BU MDs", "scheduler": "EA", "duration": "30 min", "notes": "From Cross-BU table on Input tab", "isDynamic": "crossBU", "isManual": true}, {"id": "t21", "enabled": true, "topic": "BU / Service Line Recurring Meetings", "week": "4+", "attendees": "BU / SL Leadership", "scheduler": "TBD", "duration": "TBD", "notes": "", "isDynamic": "", "isManual": false}, {"id": "t22", "enabled": true, "topic": "MD Foundations", "week": "4+", "attendees": "Joy Bonfante", "scheduler": "Joy Bonfante", "duration": "TBD", "notes": "", "isDynamic": "", "isManual": false}];
+var DEF_VIDEOS=[{"id": "v1", "title": "A&M Advantage (Steve Wallace, COO)", "url": ""}, {"id": "v2", "title": "A&M Economics (Raph Frydman, CFO)", "url": ""}, {"id": "v3", "title": "Engagement Lifecycle & Risk (James Chvatal, CRO)", "url": ""}];
+var DEF_LABELS={"sgl": "Ops Lead", "hrbp": "PBP", "finance": "Finance", "risk": "Risk & Contracting", "people": "People & Perf.", "marketing": "Marketing", "insight": "Insight Center", "km": "Knowledge Mgmt"};
+var PRELOADED_OB=[{"id": "ob1", "name": "General Onboarding", "date": "2026-01-05", "time": "12:00", "location": "Virtual", "notes": "Q1"}, {"id": "ob2", "name": "General Onboarding", "date": "2026-01-12", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob3", "name": "General Onboarding", "date": "2026-01-20", "time": "12:00", "location": "Virtual", "notes": "Tuesday"}, {"id": "ob4", "name": "General Onboarding", "date": "2026-02-02", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob5", "name": "General Onboarding", "date": "2026-02-17", "time": "12:00", "location": "Virtual", "notes": "Tuesday"}, {"id": "ob6", "name": "General Onboarding", "date": "2026-03-02", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob7", "name": "General Onboarding", "date": "2026-03-16", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob8", "name": "General Onboarding", "date": "2026-03-30", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob9", "name": "General Onboarding", "date": "2026-04-13", "time": "12:00", "location": "Virtual", "notes": "Q2"}, {"id": "ob10", "name": "General Onboarding", "date": "2026-04-20", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob11", "name": "General Onboarding", "date": "2026-05-04", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob12", "name": "General Onboarding", "date": "2026-05-11", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob13", "name": "General Onboarding", "date": "2026-06-01", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob14", "name": "General Onboarding", "date": "2026-06-15", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob15", "name": "General Onboarding", "date": "2026-07-06", "time": "12:00", "location": "Virtual", "notes": "Q3"}, {"id": "ob16", "name": "General Onboarding", "date": "2026-07-13", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob17", "name": "General Onboarding", "date": "2026-07-20", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob18", "name": "General Onboarding", "date": "2026-08-03", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob19", "name": "General Onboarding", "date": "2026-08-10", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob20", "name": "General Onboarding", "date": "2026-08-24", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob21", "name": "General Onboarding", "date": "2026-09-01", "time": "12:00", "location": "Virtual", "notes": "Tuesday"}, {"id": "ob22", "name": "General Onboarding", "date": "2026-09-14", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob23", "name": "General Onboarding", "date": "2026-10-05", "time": "12:00", "location": "Virtual", "notes": "Q4"}, {"id": "ob24", "name": "General Onboarding", "date": "2026-10-19", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob25", "name": "General Onboarding", "date": "2026-11-02", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob26", "name": "General Onboarding", "date": "2026-11-16", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob27", "name": "General Onboarding", "date": "2026-12-07", "time": "12:00", "location": "Virtual", "notes": ""}, {"id": "ob28", "name": "General Onboarding", "date": "2026-12-14", "time": "12:00", "location": "Virtual", "notes": ""}];
+
+var PK='mdSched_v8',CK='mdSched_curBU_v8',SK='mdSched_sess_v8',MRK='mdSched_mdRows_v8';
+var DEF_BUS=['AAI','CPI','CRG','Energy & Chemicals','Financial Services','HIG','Life Sciences','Public Sector','CTS (EMEA)','DTS (EMEA)','CTG','Corporate / GESS','DI','Infra','NACR','REST (EMEA)','PEPI (US)','PEPI (EMEA)','TAG','Tax','Valuation','LATAM','SAS','SPI / THL','North Asia','Southeast Asia','Australia'];
+var PROFILES={},CUR_BU='CPI',MODE='builder';
+var S={inputs:{mdName:'',mdEmail:'',buSel:'',sl:'',startDate:'',pm:'',ea:'',buddy:'',city:''},cityMode:'',crossBu:[],rows:[],generated:false,introWarn:[]};
+var LKF=['sgl','hrbp','finance','risk','people','marketing','insight','km'];
+var STS=['Not Scheduled','Scheduled','Incomplete','Complete'];
+var SCLS={'Not Scheduled':'sns','Scheduled':'ssc','Incomplete':'sin','Complete':'sco'};
+var ALL_TABS=['instructions','input','schedule','summary','quickview','saved','template','source'];
+var CTX_TARGET=null;
+
+function defBu(){return{lookup:JSON.parse(JSON.stringify(DEF_LK)),roster:[],onboarding:JSON.parse(JSON.stringify(PRELOADED_OB)),videos:JSON.parse(JSON.stringify(DEF_VIDEOS)),labels:JSON.parse(JSON.stringify(DEF_LABELS)),template:JSON.parse(JSON.stringify(DEF_TEMPLATE)),library:[],lkExtraCols:[]};}
+function loadProfiles(){
+  try{var r=localStorage.getItem(PK);if(r)PROFILES=JSON.parse(r);}catch(e){}
+  try{var b=localStorage.getItem(CK);if(b)CUR_BU=b;}catch(e){}
+  // Ensure all 27 BUs exist
+  DEF_BUS.forEach(function(bu){if(!PROFILES[bu])PROFILES[bu]=defBu();});
+  if(!PROFILES[CUR_BU])CUR_BU=DEF_BUS[0];
+  Object.keys(PROFILES).forEach(function(bu){var d=PROFILES[bu];if(!d.labels)d.labels=JSON.parse(JSON.stringify(DEF_LABELS));if(!d.template)d.template=JSON.parse(JSON.stringify(DEF_TEMPLATE));if(!d.videos)d.videos=JSON.parse(JSON.stringify(DEF_VIDEOS));if(!d.library)d.library=[];if(!d.onboarding||!d.onboarding.length)d.onboarding=JSON.parse(JSON.stringify(PRELOADED_OB));});
+}
+function saveProfiles(){try{localStorage.setItem(PK,JSON.stringify(PROFILES));localStorage.setItem(CK,CUR_BU);}catch(e){}}
+function getBu(){return PROFILES[CUR_BU]||(PROFILES[CUR_BU]=defBu(),PROFILES[CUR_BU]);}
+function getLabel(k){return(getBu().labels||DEF_LABELS)[k]||DEF_LABELS[k]||k;}
+function ge(id){return document.getElementById(id);}
+function gv(id){var e=ge(id);return e?e.value:'';}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+window.esc=esc;
+function getLk(sl){var b=getBu();for(var i=0;i<b.lookup.length;i++){if(b.lookup[i].sl===sl)return b.lookup[i];}return{};}
+function getSlNames(){return getBu().lookup.map(function(l){return l.sl;});}
+function addDays(d,n){return new Date(d.getTime()+n*864e5);}
+function wkMon(sd,wk){var p=sd.split('-');var d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]));d=new Date(d.getTime()+(wk-1)*7*864e5);var dy=d.getUTCDay(),diff=dy===0?-6:1-dy;return new Date(d.getTime()+diff*864e5);}
+function fmtS(d){var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[d.getUTCMonth()]+' '+d.getUTCDate();}
+function fmtDS(s){if(!s)return'';var p=s.split('-');if(p.length!==3)return s;var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var m=parseInt(p[1],10)-1;var d=parseInt(p[2],10);if(isNaN(m)||isNaN(d))return s;return M[m]+' '+d;}
+function fmtDL(s){if(!s)return'';var p=s.split('-');if(p.length!==3)return s;var M=['January','February','March','April','May','June','July','August','September','October','November','December'];var m=parseInt(p[1],10)-1;var d=parseInt(p[2],10);if(isNaN(m)||isNaN(d))return s;return M[m]+' '+d;}
+function wkRange(sd,wk){var s=wkMon(sd,wk);return fmtS(s)+' – '+fmtS(addDays(s,4));}
+function sortRows(rows){return rows.slice().sort(function(a,b){var da=a.date||'9999',db=b.date||'9999';if(da!==db)return da<db?-1:1;var ta=a.time||'99:99',tb=b.time||'99:99';return ta<tb?-1:ta>tb?1:0;});}
+function getVidUrl(frag){var vids=getBu().videos||[];for(var i=0;i<vids.length;i++){if(vids[i].url&&vids[i].title.toLowerCase().indexOf(frag.toLowerCase())>=0)return vids[i].url;}return'';}
+function parseCsv(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){res.push(cur.trim());cur='';}else cur+=c;}res.push(cur.trim());return res;}
+function dl(cnt,fn,tp){var blob=new Blob([cnt],{type:(tp||'text/plain')+';charset=utf-8'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=fn;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},500);}
+function wire(container,sel,cb){container.querySelectorAll(sel).forEach(function(el){el.addEventListener('change',function(){cb(this);});if(el.tagName==='INPUT')el.addEventListener('input',function(){cb(this);});});}
+function arrowNav(tr){var ins=Array.from(tr.querySelectorAll('input,select'));ins.forEach(function(el,i){el.addEventListener('keydown',function(e){if((e.key==='Enter'||(e.key==='Tab'&&!e.shiftKey))&&el.tagName!=='SELECT'){e.preventDefault();var nx=ins[i+1];if(nx)nx.focus();}});});}
+function tBodyArrow(tb){tb.addEventListener('keydown',function(e){if(e.key!=='ArrowUp'&&e.key!=='ArrowDown')return;var ac=document.activeElement;if(!ac||!tb.contains(ac))return;var rows=Array.from(tb.rows);var cr=ac.closest('tr');var ri=rows.indexOf(cr);if(ri<0)return;var ci=Array.from(cr.querySelectorAll('input,select')).indexOf(ac);if(ci<0)return;var ti=e.key==='ArrowUp'?ri-1:ri+1;if(ti<0||ti>=rows.length)return;var tins=Array.from(rows[ti].querySelectorAll('input,select'));var t=tins[Math.min(ci,tins.length-1)];if(t){e.preventDefault();t.focus();}});}
+function persistSession(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}var i=ge('saveInd');if(i){i.textContent='Saved';setTimeout(function(){i.textContent='Auto-saved';},1200);}}
+function loadSession(){try{var r=localStorage.getItem(SK);if(r)Object.assign(S,JSON.parse(r));}catch(e){}}
+function rebuildBuSel(){var sel=ge('buProfileSel');if(!sel)return;var names=Object.keys(PROFILES).sort();sel.innerHTML=names.map(function(n){return'<option value="'+esc(n)+'"'+(n===CUR_BU?' selected':'')+'>'+esc(n)+'</option>';}).join('');}
+function buildInpBuSel(){var sel=ge('inp-bu-sel');if(!sel)return;var names=Object.keys(PROFILES).sort();var cur=S.inputs.buSel||CUR_BU||'';sel.innerHTML='<option value="">-- Select BU --</option>'+names.map(function(n){return'<option value="'+esc(n)+'"'+(n===cur?' selected':'')+'>'+esc(n)+'</option>';}).join('');}
+function switchBu(name){if(!PROFILES[name])PROFILES[name]=defBu();CUR_BU=name;saveProfiles();rebuildBuSel();rebuildCityDd();buildSlSel();updateAf();renderLookup();renderRoster();renderOb();renderVideos();renderTemplate();renderLib();renderLabelInputs();updateLkHeaders();var lbl=ge('tmplBuLabel');if(lbl)lbl.textContent=name;buildInpBuSel();}
+function setMode(m){MODE=m;var isAdmin=m==='admin';document.querySelectorAll('.admin-only').forEach(function(el){el.style.display=isAdmin?'':'none';});var bb=ge('buBar');if(bb)bb.style.display=isAdmin?'flex':'none';var nav=ge('mainNav');if(nav)nav.style.top=isAdmin?'76px':'46px';var mb=ge('switchModeBtn');if(mb)mb.textContent=isAdmin?'Switch to Builder':'Switch to Admin';}
+function rebuildCityDd(){var sel=ge('inp-city');if(!sel)return;var seen={},cities=[];getBu().roster.forEach(function(r){if(r.city&&!seen[r.city]){seen[r.city]=1;cities.push(r.city);}});cities.sort();var mode=S.inputs.cityMode||'';var cur=S.inputs.city||'';var isOther=mode==='Other'||(cur&&cities.indexOf(cur)<0&&cur!=='');sel.innerHTML='<option value="">-- Select City --</option>'+cities.map(function(c){return'<option value="'+esc(c)+'"'+(!isOther&&c===cur?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'<option value="Other"'+(isOther?' selected':'')+'>Other</option>';}
+function updatePill(){var p=ge('hdrPill');if(!p)return;p.textContent=(S.inputs.mdName||'No MD selected')+(S.inputs.sl?' · '+S.inputs.sl:'');}
+function updateAf(){
+  var sl=S.inputs.sl;var lbl=ge('slLbl');if(lbl)lbl.textContent=sl||'—';
+  var lk=getLk(sl);var g=ge('afGrid');if(!g)return;
+  var rows=[{k:'leader',l:'SL Leader'},{k:'sgl',l:getLabel('sgl')},{k:'hrbp',l:getLabel('hrbp')},{k:'finance',l:getLabel('finance')},{k:'risk',l:getLabel('risk')},{k:'people',l:getLabel('people')},{k:'marketing',l:getLabel('marketing')},{k:'insight',l:getLabel('insight')},{k:'km',l:getLabel('km')}];
+  g.innerHTML=rows.map(function(f){return'<div><div class="af-lbl">'+esc(f.l)+'</div><div class="af-val">'+esc(lk[f.k]||'—')+'</div></div>';}).join('');
+}
+function matchOb(sd){if(!sd)return null;var base=new Date(sd+'T12:00:00');var ob=getBu().onboarding;for(var i=0;i<ob.length;i++){var o=ob[i];if(!o.date)continue;var diff=(new Date(o.date+'T12:00:00')-base)/864e5;if(diff>=-1&&diff<=28)return o;}return null;}
+function updateObPrev(){var sd=S.inputs.startDate,el=ge('obPrev');if(!el)return;var m=matchOb(sd);if(m){el.style.color='';el.innerHTML='<strong>'+esc(m.name||'General Onboarding')+'</strong> · '+esc(m.date)+(m.time?' at '+esc(m.time):'')+(m.location?' · '+esc(m.location):'');}else{el.style.color='var(--g500)';el.textContent=sd?'No session found within 28 days.':'Enter a start date to detect the matching session.';}}
+function updateGenBtn(){var ok=!!(S.inputs.mdName&&S.inputs.startDate);var btn=ge('genBtn'),hint=ge('genHint');if(btn)btn.disabled=!ok;if(hint)hint.textContent=ok?'':'Enter MD name and start date to continue';}
+function syncCityOther(){var sel=ge('inp-city');var oth=ge('inp-city-other');if(!sel||!oth)return;if(sel.value==='Other'){oth.style.display='block';}else{oth.style.display='none';}}
+function effCity(){var sel=ge('inp-city');var oth=ge('inp-city-other');if(sel&&sel.value==='Other'){return oth?oth.value.trim():'';}return sel?sel.value:'';}
+function autoSave(){S.inputs.mdName=gv('inp-mdName');S.inputs.mdEmail=gv('inp-mdEmail');S.inputs.buSel=gv('inp-bu-sel');S.inputs.sl=gv('inp-sl');S.inputs.startDate=gv('inp-startDate');S.inputs.pm=gv('inp-pm');S.inputs.ea=gv('inp-ea');S.inputs.buddy=gv('inp-buddy');var sel=ge('inp-city');S.inputs.cityMode=sel?sel.value:'';S.inputs.city=effCity();persistSession();updatePill();updateAf();updateGenBtn();}
+function onSlChange(){S.inputs.sl=gv('inp-sl');var lk=getLk(S.inputs.sl);var pm=ge('inp-pm');if(pm&&!S.inputs.pm)pm.placeholder=lk.leader||'Auto-filled or override';persistSession();updateAf();}
+function onSDChange(){S.inputs.startDate=gv('inp-startDate');persistSession();updateObPrev();updateGenBtn();}
+function buildSlSel(){var sel=ge('inp-sl');if(!sel)return;var names=getSlNames();var cur=S.inputs.sl||'';if(cur&&names.indexOf(cur)<0)cur=names[0]||'';sel.innerHTML=names.map(function(n){return'<option value="'+esc(n)+'"'+(n===cur?' selected':'')+'>'+esc(n)+'</option>';}).join('');if(cur!==S.inputs.sl)S.inputs.sl=cur;}
+function addCrossRow(data){var r=data||{id:uid(),name:'',bu:'',week:'4',topic:'',scheduler:S.inputs.ea||'EA',email:''};if(!r.email)r.email=emailFor(r.name)||'';if(!data){S.crossBu.push(r);persistSession();}var tb=ge('crossBody');if(!tb)return;var tr=document.createElement('tr');tr.id='cr-'+r.id;var wo=['1','2','3','4','4+'].map(function(w){return'<option'+(w===r.week?' selected':'')+'>'+w+'</option>';}).join('');tr.innerHTML='<td><input class="li" value="'+esc(r.name)+'" placeholder="Last, First" data-id="'+r.id+'" data-field="name"></td><td><input class="li" value="'+esc(r.bu)+'" placeholder="BU" data-id="'+r.id+'" data-field="bu"></td><td><select class="li" data-id="'+r.id+'" data-field="week">'+wo+'</select></td><td><input class="li" value="'+esc(r.topic)+'" placeholder="Reason" data-id="'+r.id+'" data-field="topic"></td><td><input class="li" value="'+esc(r.scheduler)+'" data-id="'+r.id+'" data-field="scheduler"></td><td><input class="li" type="email" value="'+esc(r.email||'')+'" placeholder="auto / type email" data-id="'+r.id+'" data-field="email"></td><td><button class="bdel" data-del-cross="'+r.id+'" type="button">&times;</button></td>';tb.appendChild(tr);arrowNav(tr);wire(tr,'[data-id]',function(el){var rx=S.crossBu.find(function(x){return x.id===el.dataset.id;});if(rx){rx[el.dataset.field]=el.value;if(el.dataset.field==='name'){var au=emailFor(el.value);var ef=tr.querySelector('[data-field="email"]');if(au&&ef&&!ef.value){ef.value=au;rx.email=au;}}persistSession();}});var d=tr.querySelector('[data-del-cross]');if(d)d.addEventListener('click',function(){S.crossBu=S.crossBu.filter(function(x){return x.id!==this.dataset.delCross;}.bind(this));var t=ge('cr-'+this.dataset.delCross);if(t)t.remove();persistSession();});}
+function renderCrossBu(){ge('crossBody').innerHTML='';S.crossBu.forEach(function(r){addCrossRow(r);});}
+function normName(n){return String(n||'').trim().toLowerCase();}
+function emailFor(name){if(!name)return '';var key=normName(toFL(name));var key2=normName(name);var rost=getBu().roster||[];for(var i=0;i<rost.length;i++){var rn=normName(rost[i].name);if(rost[i].email&&(rn===key||rn===key2))return rost[i].email;}return '';}
+function toFL(name){if(!name)return name;var idx=name.indexOf(',');if(idx<0)return name.trim();return name.slice(idx+1).trim()+' '+name.slice(0,idx).trim();}
+function generateSchedule(){
+  autoSave();var inp=S.inputs,lk=getLk(inp.sl);
+  var ea=inp.ea||'EA',pm=inp.pm||lk.leader||'PM';
+  var slL=inp.sl||'[SL]',buL=inp.buSel||CUR_BU||'[BU]';
+  var ob=matchOb(inp.startDate);var bu=getBu();
+  var slKey=(inp.sl||'').trim().toLowerCase();var cityKey=(inp.city||'').trim().toLowerCase();
+  var selfKey=(inp.mdName||'').trim().toLowerCase();
+  function isMD(r){return r.level==='MD'||r.level==='Managing Director';}
+  var slMDs=bu.roster.filter(function(r){return r.name&&isMD(r)&&(r.sl||'').trim().toLowerCase()===slKey&&r.name.trim().toLowerCase()!==selfKey;});
+  var locMDs=cityKey?bu.roster.filter(function(r){return r.name&&isMD(r)&&(r.city||'').trim().toLowerCase()===cityKey&&r.name.trim().toLowerCase()!==selfKey;}):[];
+  var obDate=ob?ob.date:'',obTime=ob?ob.time:'',obLoc=ob?ob.location:'';
+  var labs=bu.labels||DEF_LABELS;
+  function res(s){return s.replace(/\[SL\]/g,slL).replace(/\[BU\]/g,buL).replace(/\[EA\]/g,ea).replace(/\[PM\]/g,pm).replace(/\[OpsLead\]/g,lk.sgl||labs.sgl).replace(/\[PBP\]/g,lk.hrbp||labs.hrbp).replace(/\[SGL\]/g,lk.sgl||labs.sgl).replace(/\[HRBP\]/g,lk.hrbp||labs.hrbp).replace(/\[Finance\]/g,lk.finance||labs.finance).replace(/\[Risk\]/g,lk.risk||labs.risk).replace(/\[People\]/g,lk.people||labs.people).replace(/\[Marketing\]/g,lk.marketing||labs.marketing).replace(/\[Insight\]/g,lk.insight||labs.insight).replace(/\[KM\]/g,lk.km||labs.km).replace(/\[Buddy\]/g,inp.buddy||'MD Mentor').replace(/\[Mentor\]/g,inp.buddy||'MD Mentor');}
+  function mk(wk,top,att,dur,sch,notes,isM,date,time,loc,link,aEmail){return{id:uid(),week:wk,topic:top,attendees:att,duration:dur,scheduler:sch,notes:notes||'',isManual:!!isM,date:date||'',time:time||'',location:loc||'',link:link||'',status:'Not Scheduled',attendeeEmail:(aEmail||emailFor(att)||'')};}
+  var rows=[];var tmpl=bu.template||DEF_TEMPLATE;
+  var introByWeek={};
+  function bumpIntro(wk){introByWeek[wk]=(introByWeek[wk]||0)+1;}
+  tmpl.forEach(function(t){
+    if(!t.enabled)return;var dyn=t.isDynamic||'';var top=res(t.topic);var att=res(t.attendees);var sch=res(t.scheduler);
+    if(dyn==='slMDs'){
+      if(slMDs.length>0){slMDs.forEach(function(m){var fn=toFL(m.name);rows.push(mk(t.week,slL+' Introduction: '+fn,fn,t.duration,sch,'',false));bumpIntro(t.week);});}
+      else{rows.push(mk(t.week,slL+' MD Introduction (1:1)','Service Line MDs',t.duration,sch,'No roster MDs found in service line "'+slL+'" — add them in Source Data ▸ Key Contacts',true));}
+    }else if(dyn==='locMDs'){
+      // Pull local MDs by city (case-insensitive, trimmed). If none match, omit Local MD meetings entirely.
+      if(locMDs.length>0){locMDs.forEach(function(m){var fn=toFL(m.name);var slN=m.sl?' ('+m.sl+')':'';rows.push(mk(t.week,'Local '+buL+' Introduction: '+fn+slN,fn,t.duration,sch,'Local MD in '+inp.city,false));bumpIntro(t.week);});}
+    }else if(dyn==='crossBU'){
+      var nc=S.crossBu.filter(function(c){return c.name;});
+      if(nc.length>0){nc.forEach(function(c){rows.push(mk(c.week||'4','Cross-BU Introduction: '+c.name+(c.bu?' ('+c.bu+')':''),c.name,'30 min',c.scheduler||sch,c.topic||'',true,'','','','',c.email||emailFor(c.name)));});}
+      else rows.push(mk(t.week,top,att,t.duration,sch,'Add names in Cross-BU table',true));
+    }else if(dyn==='ob'){
+      rows.push(mk(t.week,top,att,t.duration,sch,t.notes,t.isManual,obDate,obTime,obLoc));
+    }else if(dyn&&dyn.indexOf('video:')===0){
+      rows.push(mk(t.week,top,att,t.duration,sch,t.notes,t.isManual,'','','',getVidUrl(dyn.slice(6))));
+    }else{
+      rows.push(mk(t.week,top,att,t.duration,sch,t.notes,t.isManual));
+    }
+  });
+  S.rows=rows;S.generated=true;persistSession();switchTab('schedule');renderSchedule();updateSchedCount();
+  // Item 14: soft-warn (do not block) when combined SL + Local MD introductions exceed 10 in any week.
+  var overWeeks=Object.keys(introByWeek).filter(function(w){return introByWeek[w]>10;});
+  S.introWarn=overWeeks.map(function(w){return{week:w,count:introByWeek[w]};});
+  persistSession();renderIntroWarn();
+  if(overWeeks.length){
+    var msg=overWeeks.map(function(w){return'Week '+w+': '+introByWeek[w]+' introductions';}).join('\n');
+    alert('Heads up: more than 10 MD introductions scheduled in a week.\n\n'+msg+'\n\nThe schedule was still generated. Consider spreading introductions across more weeks to keep the load manageable.');
+  }
+}
+function renderIntroWarn(){var el=ge('introWarn');if(!el)return;var w=(S.introWarn||[]);if(!w.length){el.style.display='none';el.innerHTML='';return;}var lines=w.map(function(x){return'Week '+x.week+': '+x.count+' introductions';}).join(' &middot; ');el.style.display='block';el.style.cssText='display:block;background:var(--amber);color:#fff;padding:9px 14px;border-radius:var(--r);margin-bottom:12px;font-size:11px;line-height:1.6';el.innerHTML='<strong>Introduction load is high.</strong> '+lines+'. More than 10 MD introductions in a week is a lot to absorb. The schedule was generated as-is. Consider spreading introductions across more weeks.';}
+function renderSchedule(){
+  var inp=S.inputs;ge('schedTitle').textContent=inp.mdName||'—';
+  ge('schedMeta').textContent=[inp.sl,inp.buSel||CUR_BU,inp.startDate?'Start: '+fmtDL(inp.startDate):''].filter(Boolean).join(' · ');
+  var cont=ge('schedContent');cont.innerHTML='';
+  ['1','2','3','4','4+'].forEach(function(wk){
+    var wRows=sortRows(S.rows.filter(function(r){return r.week===wk;}));
+    var sec=document.createElement('div');sec.className='week-sec';
+    var wLbl=wk==='4+'?'Week 4+ · Ongoing':'Week '+wk;
+    var dH=inp.startDate&&wk!=='4+'?'<span class="wdates">'+wkRange(inp.startDate,parseInt(wk))+'</span>':'';
+    sec.innerHTML='<div class="week-hdr"><span class="wlbl">'+wLbl+'</span>'+dH+'<span class="wct">'+wRows.length+' items</span></div>'
+      +'<div class="card"><div style="overflow-x:auto"><table class="st" style="table-layout:fixed;min-width:880px"><colgroup><col style="width:23%"><col style="width:15%"><col style="width:7%"><col style="width:11%"><col style="width:10%"><col style="width:7%"><col style="width:10%"><col style="width:13%"><col style="width:4%"></colgroup>'
+      +'<thead><tr><th>Topic</th><th>Attendees</th><th>Duration</th><th>Scheduler</th><th>Date</th><th>Time</th><th>Location</th><th>Status</th><th></th></tr></thead>'
+      +'<tbody id="wb-'+wk+'"></tbody></table></div>'
+      +'<div style="padding:5px 10px;border-top:1px solid var(--g100)"><button class="add-rw no-print" data-addrow="'+wk+'" type="button">+ Add row to Week '+wk+'</button></div></div>';
+    cont.appendChild(sec);
+    sec.querySelector('[data-addrow]').addEventListener('click',function(){addSchedRow(this.dataset.addrow);});
+    var tbody=sec.querySelector('tbody');if(tbody)tBodyArrow(tbody);
+    wRows.forEach(function(r){renderSchedRow(r);});
+  });
+}
+function renderSchedRow(row){
+  var tb=ge('wb-'+row.week);if(!tb)return;
+  var tr=document.createElement('tr');tr.id='sr-'+row.id;tr.className=row.isManual?'man':'dyn';
+  var sOpts=STS.map(function(s){return'<option value="'+s+'"'+(s===row.status?' selected':'')+'>'+s+'</option>';}).join('');
+  var topCell=row.link?'<td><a href="'+esc(row.link)+'" target="_blank" style="color:var(--blue);font-weight:bold;text-decoration:underline">'+esc(row.topic)+'</a>'+(row.notes?'<div style="font-size:10px;color:var(--g400)">'+esc(row.notes)+'</div>':'')+'</td>':'<td><input class="ci'+(row.isManual?' amber':'')+'" value="'+esc(row.topic)+'" data-id="'+row.id+'" data-field="topic" title="'+esc(row.notes||row.topic)+'">'+(row.notes?'<div style="font-size:10px;color:var(--g400)">'+esc(row.notes)+'</div>':'')+'</td>';
+  tr.innerHTML=topCell+'<td><input class="ci dim" value="'+esc(row.attendees)+'" data-id="'+row.id+'" data-field="attendees"></td><td><input class="ci dim" value="'+esc(row.duration)+'" data-id="'+row.id+'" data-field="duration"></td><td><input class="ci dim" value="'+esc(row.scheduler)+'" data-id="'+row.id+'" data-field="scheduler"></td><td><input class="ci" type="date" value="'+esc(row.date||'')+'" data-id="'+row.id+'" data-field="date" data-sort="1" data-wk="'+row.week+'"></td><td><input class="ci" type="time" value="'+esc(row.time||'')+'" data-id="'+row.id+'" data-field="time" data-sort="1" data-wk="'+row.week+'"></td><td><input class="ci dim" value="'+esc(row.location||'')+'" data-id="'+row.id+'" data-field="location"></td><td><select class="ssel '+(SCLS[row.status]||'sns')+'" id="ss-'+row.id+'" data-id="'+row.id+'">'+sOpts+'</select></td><td style="text-align:center;white-space:nowrap"><button class="bdel no-print" data-del-row="'+row.id+'" type="button">&times;</button></td>';
+  tb.appendChild(tr);arrowNav(tr);
+  tr.querySelectorAll('input[data-id]').forEach(function(el){el.addEventListener('change',function(){updRow(this.dataset.id,this.dataset.field,this.value);});el.addEventListener('input',function(){updRow(this.dataset.id,this.dataset.field,this.value);});el.addEventListener('paste',function(e){schedPaste(e,el);});if(el.dataset.sort){el.addEventListener('blur',function(){updRowSort(this.dataset.id,this.dataset.field,this.value);});el.addEventListener('contextmenu',function(e){showCtx(e,el);});}});
+  var sel=tr.querySelector('select[data-id]');if(sel)sel.addEventListener('change',function(){updStatus(this.dataset.id,this.value);});
+  var del=tr.querySelector('[data-del-row]');if(del)del.addEventListener('click',function(){delSchedRow(this.dataset.delRow);});
+}
+function updRow(id,f,v){var r=S.rows.find(function(x){return x.id===id;});if(r){r[f]=v;persistSession();}}
+function schedPaste(e,el){
+  var cd=e.clipboardData||window.clipboardData;if(!cd)return;
+  var txt=cd.getData('text');if(txt===undefined||txt===null)return;
+  // Single value (no tabs/newlines): let the browser paste natively, then commit.
+  if(txt.indexOf('\t')<0&&txt.indexOf('\n')<0){setTimeout(function(){updRow(el.dataset.id,el.dataset.field,el.value);},0);return;}
+  // Excel-style block paste across columns/rows.
+  e.preventDefault();
+  var grid=txt.replace(/\r/g,'').replace(/\n$/,'').split('\n').map(function(line){return line.split('\t');});
+  var startTr=el.closest('tr');var tb=startTr.parentNode;
+  var trs=Array.from(tb.querySelectorAll('tr'));var startRi=trs.indexOf(startTr);
+  var editable=['topic','attendees','duration','scheduler','date','time','location'];
+  var startCol=editable.indexOf(el.dataset.field);if(startCol<0)startCol=0;
+  grid.forEach(function(cells,r){
+    var tr=trs[startRi+r];if(!tr)return;var id=tr.id.replace('sr-','');
+    cells.forEach(function(val,c){
+      var field=editable[startCol+c];if(!field)return;
+      var inp=tr.querySelector('input[data-field="'+field+'"]');if(!inp)return;
+      inp.value=val.trim();updRow(id,field,val.trim());
+    });
+  });
+  persistSession();renderSchedule();
+}
+function updRowSort(id,f,v){var r=S.rows.find(function(x){return x.id===id;});if(!r)return;r[f]=v;persistSession();var wk=r.week,tb=ge('wb-'+wk);if(!tb)return;tb.innerHTML='';sortRows(S.rows.filter(function(x){return x.week===wk;})).forEach(function(x){renderSchedRow(x);});tBodyArrow(tb);}
+function updStatus(id,v){var r=S.rows.find(function(x){return x.id===id;});if(!r)return;r.status=v;persistSession();var sel=ge('ss-'+id);if(sel)sel.className='ssel '+(SCLS[v]||'sns');renderSummary();}
+function addSchedRow(wk){var r={id:uid(),week:wk,topic:'',attendees:'',duration:'30 min',location:'',scheduler:S.inputs.ea||'EA',date:'',time:'',link:'',status:'Not Scheduled',notes:'',isManual:true};S.rows.push(r);persistSession();renderSchedRow(r);updateSchedCount();}
+function delSchedRow(id){S.rows=S.rows.filter(function(x){return x.id!==id;});var tr=ge('sr-'+id);if(tr)tr.remove();persistSession();updateSchedCount();renderSummary();}
+function updateSchedCount(){var c=ge('schedCount');if(c)c.textContent=S.rows.length;}
+function showCtx(e,el){e.preventDefault();CTX_TARGET=el;var menu=ge('ctxMenu');menu.style.display='block';var x=Math.min(e.clientX,window.innerWidth-200),y=Math.min(e.clientY,window.innerHeight-80);menu.style.left=x+'px';menu.style.top=y+'px';}
+function hideCtx(){var m=ge('ctxMenu');if(m)m.style.display='none';CTX_TARGET=null;}
+function fillDown(emptyOnly){
+  if(!CTX_TARGET)return;var el=CTX_TARGET,val=el.value,field=el.dataset.field,wk=el.dataset.wk;if(!val){hideCtx();return;}
+  var rows=sortRows(S.rows.filter(function(r){return r.week===wk;}));var si=rows.findIndex(function(r){return r.id===el.dataset.id;});if(si<0){hideCtx();return;}
+  for(var i=si+1;i<rows.length;i++){if(emptyOnly&&rows[i][field])continue;rows[i][field]=val;}
+  persistSession();renderSchedule();hideCtx();
+}
+function renderSummary(){var wks=['1','2','3','4','4+'];var si=[{k:'Not Scheduled',bg:'#f1f3f5',tx:'#495057'},{k:'Scheduled',bg:'#dcfce7',tx:'#166534'},{k:'Incomplete',bg:'#fef3c7',tx:'#92480a'},{k:'Complete',bg:'#e8f2fb',tx:'#1e6fbf'}];function cnt(st,wk){return S.rows.filter(function(r){return r.status===st&&(wk?r.week===wk:true);}).length;}ge('statCards').innerHTML=si.map(function(s){return'<div class="scard" style="background:'+s.bg+';border:1px solid '+s.tx+'22"><div class="slbl" style="color:'+s.tx+'">'+s.k+'</div><div class="snum" style="color:'+s.tx+'">'+cnt(s.k)+'</div></div>';}).join('');ge('trkTable').innerHTML='<thead><tr><th>Status</th>'+wks.map(function(w){return'<th>Week '+w+'</th>';}).join('')+'<th>Total</th></tr></thead><tbody>'+si.map(function(s){return'<tr><td><span class="badge" style="background:'+s.bg+';color:'+s.tx+'">'+s.k+'</span></td>'+wks.map(function(w){var n=cnt(s.k,w);return'<td style="color:'+(n>0?s.tx:'var(--g400)')+';font-weight:bold">'+n+'</td>';}).join('')+'<td style="font-weight:bold;color:'+s.tx+'">'+cnt(s.k)+'</td></tr>';}).join('')+'</tbody>';}
+function renderQv(){var inp=S.inputs;var buN=inp.buSel||CUR_BU;ge('qvBu').textContent=buN||'—';ge('qvSl').textContent=inp.sl||'';ge('qvName').textContent=inp.mdName||'—';var mi=[{l:'Service Line',v:inp.sl},{l:'BU',v:buN},{l:'Start Date',v:inp.startDate?fmtDL(inp.startDate):''},{l:'City',v:inp.city},{l:'PM',v:inp.pm},{l:'EA',v:inp.ea},{l:'Mentor',v:inp.buddy}].filter(function(x){return x.v;});ge('qvMeta').innerHTML=mi.map(function(x){return'<div class="qv-meta-item"><div class="qv-meta-lbl">'+esc(x.l)+'</div><div class="qv-meta-val">'+esc(x.v)+'</div></div>';}).join('');ge('qvWeeks').innerHTML=['1','2','3','4','4+'].map(function(wk){var wRows=sortRows(S.rows.filter(function(r){return r.week===wk;}));if(!wRows.length)return'';var wLbl=wk==='4+'?'Week 4+ · Ongoing':'Week '+wk;var ds=inp.startDate&&wk!=='4+'?wkRange(inp.startDate,parseInt(wk)):'';return'<div class="qv-wk"><div class="qv-wlbl">'+wLbl+'<span class="qv-wd">'+esc(ds)+'</span></div>'+wRows.map(function(r){var th=r.link?'<a href="'+esc(r.link)+'" style="color:var(--blue)">'+esc(r.topic)+'</a>':esc(r.topic);return'<div class="qv-row"><div class="qv-top">'+th+'</div><div class="qv-att">'+esc(r.attendees)+'</div></div>';}).join('')+'</div>';}).join('');}
+function exportXlsx(){
+  if(typeof XLSX==='undefined'){alert('Excel export library is still loading. Please try again in a moment.');return;}
+  if(!S.generated||!S.rows.length){alert('Generate a schedule first.');return;}
+  var inp=S.inputs;var mdName=inp.mdName||'New MD';
+  var weeks=['1','2','3','4','4+'];
+  var headers=['Week','Topic','Attendees','Duration','Scheduler','Date','Time','Location','Status'];
+  var aoa=[];
+  // Title + meta block
+  aoa.push(['MD Integration Planner — First 30 Days Schedule']);
+  aoa.push([mdName+(inp.sl?'  |  '+inp.sl:'')+(inp.buSel?'  |  '+inp.buSel:'')]);
+  var metaBits=[];
+  if(inp.startDate)metaBits.push('Start: '+fmtDL(inp.startDate));
+  if(inp.city)metaBits.push('City: '+inp.city);
+  if(inp.pm)metaBits.push('PM: '+inp.pm);
+  if(inp.ea)metaBits.push('EA: '+inp.ea);
+  if(inp.buddy)metaBits.push('Mentor: '+inp.buddy);
+  aoa.push([metaBits.join('    ')]);
+  aoa.push([]);
+  var headerRowIdx=aoa.length; // 0-based row index of the column header row
+  aoa.push(headers);
+  weeks.forEach(function(wk){
+    var wRows=sortRows(S.rows.filter(function(r){return r.week===wk;}));
+    wRows.forEach(function(r){
+      aoa.push([
+        (wk==='4+'?'4+ / Ongoing':'Week '+wk),
+        r.topic||'', r.attendees||'', r.duration||'', r.scheduler||'',
+        r.date?fmtDS(r.date):'', r.time||'', r.location||'', r.status||''
+      ]);
+    });
+  });
+  var ws=XLSX.utils.aoa_to_sheet(aoa);
+  // Column widths
+  ws['!cols']=[{wch:13},{wch:42},{wch:26},{wch:10},{wch:16},{wch:11},{wch:9},{wch:18},{wch:15}];
+  // Merge title/meta across all columns
+  ws['!merges']=[
+    {s:{r:0,c:0},e:{r:0,c:headers.length-1}},
+    {s:{r:1,c:0},e:{r:1,c:headers.length-1}},
+    {s:{r:2,c:0},e:{r:2,c:headers.length-1}}
+  ];
+  var range=XLSX.utils.decode_range(ws['!ref']);
+  function setStyle(r,c,style){var addr=XLSX.utils.encode_cell({r:r,c:c});if(!ws[addr])ws[addr]={t:'s',v:''};ws[addr].s=style;}
+  var navy='FF002B49';
+  // Title styles
+  setStyle(0,0,{font:{name:'Arial',sz:14,bold:true,color:{rgb:navy}}});
+  setStyle(1,0,{font:{name:'Arial',sz:11,bold:true,color:{rgb:'FF333333'}}});
+  setStyle(2,0,{font:{name:'Arial',sz:9,color:{rgb:'FF666666'}}});
+  // Header row styles (navy fill, white bold Arial)
+  for(var c=0;c<headers.length;c++){
+    setStyle(headerRowIdx,c,{font:{name:'Arial',sz:10,bold:true,color:{rgb:'FFFFFFFF'}},fill:{patternType:'solid',fgColor:{rgb:navy}},alignment:{horizontal:'left',vertical:'center'}});
+  }
+  // Body cell styles (Arial, top-aligned, wrap topic/attendees)
+  for(var r=headerRowIdx+1;r<=range.e.r;r++){
+    for(var cc=0;cc<headers.length;cc++){
+      var wrap=(cc===1||cc===2);
+      setStyle(r,cc,{font:{name:'Arial',sz:10,color:{rgb:'FF222222'}},alignment:{horizontal:'left',vertical:'top',wrapText:wrap}});
+    }
+  }
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Schedule');
+  var safe=(mdName||'MD').replace(/[^\w]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'MD';
+  XLSX.writeFile(wb,'MD_Integration_Plan_'+safe+'.xlsx',{cellStyles:true});
+}
+function saveCurrentSchedule(){if(!S.generated||!S.rows.length){alert('Generate a schedule first.');return;}var name=S.inputs.mdName||'Unnamed MD';var lib=getBu().library;var ex=lib.find(function(x){return x.inputs.mdName===name&&x.inputs.startDate===S.inputs.startDate;});if(ex){if(!confirm('Overwrite saved schedule for "'+name+'"?'))return;Object.assign(ex,{savedAt:new Date().toISOString(),inputs:JSON.parse(JSON.stringify(S.inputs)),rows:JSON.parse(JSON.stringify(S.rows)),crossBu:JSON.parse(JSON.stringify(S.crossBu))});}else{lib.push({id:uid(),savedAt:new Date().toISOString(),buProfile:CUR_BU,inputs:JSON.parse(JSON.stringify(S.inputs)),rows:JSON.parse(JSON.stringify(S.rows)),crossBu:JSON.parse(JSON.stringify(S.crossBu))});}saveProfiles();renderLib();alert('Schedule for "'+name+'" saved under '+CUR_BU+'.');}
+function loadSaved(buName,id){var p=PROFILES[buName];if(!p)return;var e=p.library.find(function(x){return x.id===id;});if(!e)return;if(!confirm('Load "'+e.inputs.mdName+'"?'))return;S.inputs=JSON.parse(JSON.stringify(e.inputs));S.rows=JSON.parse(JSON.stringify(e.rows));S.crossBu=JSON.parse(JSON.stringify(e.crossBu||[]));S.generated=true;persistSession();if(buName!==CUR_BU)switchBu(buName);restoreInputs();renderCrossBu();renderSchedule();updateSchedCount();switchTab('schedule');}
+function deleteSaved(buName,id){if(!confirm('Delete this schedule?'))return;var p=PROFILES[buName];if(!p)return;p.library=p.library.filter(function(x){return x.id!==id;});saveProfiles();renderLib();}
+function renderLib(){var cont=ge('libContainer'),empty=ge('libEmpty');if(!cont)return;var buNames=Object.keys(PROFILES).sort();var any=false;cont.innerHTML='';buNames.forEach(function(buName){var lib=(PROFILES[buName]||{}).library||[];if(!lib.length)return;any=true;var fold=document.createElement('div');fold.className='bu-fold';var hdr=document.createElement('div');hdr.className='bu-fold-hdr';hdr.innerHTML='▼ '+esc(buName)+'<span class="bu-fold-ct">'+lib.length+'</span>';var grid=document.createElement('div');grid.className='lib-grid';lib.forEach(function(e){var d=new Date(e.savedAt);var ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});var total=e.rows.length,done=e.rows.filter(function(r){return r.status==='Complete';}).length;var card=document.createElement('div');card.className='lib-card';card.innerHTML='<div class="lib-name">'+esc(e.inputs.mdName||'Unnamed MD')+'</div><div class="lib-meta">'+esc(e.inputs.sl||'')+(e.inputs.buSel?' · '+esc(e.inputs.buSel):'')+'</div><div class="lib-meta">Start: '+esc(e.inputs.startDate?fmtDL(e.inputs.startDate):'No date')+'</div><div class="lib-meta" style="color:var(--green);font-weight:bold">'+done+' / '+total+' complete</div><div class="lib-dt">Saved: '+esc(ds)+'</div><div class="lib-acts"><button class="btn bs" style="padding:3px 8px" data-load-bu="'+esc(buName)+'" data-load-id="'+e.id+'" type="button">Load</button><button class="btn bs" style="padding:3px 8px;color:var(--red)" data-del-bu="'+esc(buName)+'" data-del-id="'+e.id+'" type="button">Delete</button></div>';grid.appendChild(card);});fold.appendChild(hdr);fold.appendChild(grid);cont.appendChild(fold);hdr.addEventListener('click',function(){grid.style.display=grid.style.display==='none'?'':'none';});});if(empty)empty.style.display=any?'none':'block';cont.querySelectorAll('[data-load-id]').forEach(function(el){el.addEventListener('click',function(ev){ev.stopPropagation();loadSaved(this.dataset.loadBu,this.dataset.loadId);});});cont.querySelectorAll('[data-del-id]').forEach(function(el){el.addEventListener('click',function(ev){ev.stopPropagation();deleteSaved(this.dataset.delBu,this.dataset.delId);});});var lc=ge('libCount');if(lc){var tot=0;Object.keys(PROFILES).forEach(function(b){tot+=((PROFILES[b]||{}).library||[]).length;});lc.textContent=tot;}}
+function exportLib(){dl(JSON.stringify(Object.fromEntries(Object.keys(PROFILES).map(function(b){return[b,(PROFILES[b]||{}).library||[]];})),null,2),'md_saved_schedules.json','application/json');}
+function importLib(){var inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.addEventListener('change',function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);Object.keys(d).forEach(function(bu){if(!PROFILES[bu])PROFILES[bu]=defBu();PROFILES[bu].library=(PROFILES[bu].library||[]).concat(d[bu]||[]);});saveProfiles();renderLib();alert('Imported.');}catch(e){alert('Invalid file.');}};r.readAsText(f);});inp.click();}
+function renderTemplate(){var tb=ge('tmplBody');if(!tb)return;tb.innerHTML='';var tmpl=getBu().template||DEF_TEMPLATE;var lbl=ge('tmplBuLabel');if(lbl)lbl.textContent=CUR_BU;tmpl.forEach(function(t,i){var tr=document.createElement('tr');tr.id='tmpl-'+t.id;var wo=['1','2','3','4','4+'].map(function(w){return'<option'+(w===t.week?' selected':'')+'>'+w+'</option>';}).join('');tr.innerHTML='<td style="text-align:center"><input type="checkbox" class="tmpl-ck"'+(t.enabled?' checked':'')+' data-ti="'+i+'"></td><td><input class="li" value="'+esc(t.topic)+'" data-ti="'+i+'" data-field="topic" style="color:var(--g900)"></td><td><select class="li" data-ti="'+i+'" data-field="week">'+wo+'</select></td><td><input class="li" value="'+esc(t.attendees)+'" data-ti="'+i+'" data-field="attendees" style="color:var(--g900)"></td><td><input class="li" value="'+esc(t.scheduler)+'" data-ti="'+i+'" data-field="scheduler" style="color:var(--g900)"></td><td><input class="li" value="'+esc(t.duration)+'" data-ti="'+i+'" data-field="duration" style="color:var(--g900)"></td><td><input class="li" value="'+esc(t.notes)+'" data-ti="'+i+'" data-field="notes" style="color:var(--g900)"></td><td><button class="bdel" data-del-tmpl="'+i+'" type="button">&times;</button></td>';tb.appendChild(tr);arrowNav(tr);tr.querySelector('.tmpl-ck').addEventListener('change',function(){var idx=parseInt(this.dataset.ti);getBu().template[idx].enabled=this.checked;});tr.querySelectorAll('input.li,select.li').forEach(function(el){if(!el.dataset.field)return;el.addEventListener('change',function(){var idx=parseInt(this.dataset.ti);getBu().template[idx][this.dataset.field]=this.value;});});var del=tr.querySelector('[data-del-tmpl]');if(del)del.addEventListener('click',function(){var idx=parseInt(this.dataset.delTmpl);getBu().template.splice(idx,1);saveProfiles();renderTemplate();});});tBodyArrow(tb);}
+function addTmplRow(){getBu().template.push({id:uid(),enabled:true,topic:'',week:'4+',attendees:'',scheduler:'EA',duration:'30 min',notes:'',isManual:true,isDynamic:''});renderTemplate();}
+function saveTmpl(){saveProfiles();alert('Template saved for '+CUR_BU+'.');}
+function lkCoreCols(){var labs=getBu().labels||DEF_LABELS;var cols=[{key:'leader',label:'Leader'}];LKF.forEach(function(k){cols.push({key:k,label:labs[k]||DEF_LABELS[k]||k});});return cols;}
+function lkExtraCols(){var b=getBu();if(!b.lkExtraCols)b.lkExtraCols=[];return b.lkExtraCols;}
+function lkAllCols(){return lkCoreCols().concat(lkExtraCols().map(function(c){return{key:c.key,label:c.label,extra:true};}));}
+function updateLkHeaders(){var head=ge('lkHead');if(!head)return;var cols=lkAllCols();var h='<tr><th style="min-width:90px">Service Line</th>';cols.forEach(function(c){h+='<th style="min-width:100px"'+(c.key!=='leader'?' id="lkHdr_'+c.key+'"':'')+'>'+esc(c.label)+(c.extra?' <button class="lk-delcol" data-delcol="'+esc(c.key)+'" title="Remove column" type="button">&times;</button>':'')+'</th>';});h+='<th style="min-width:36px"></th></tr>';head.innerHTML=h;head.querySelectorAll('[data-delcol]').forEach(function(b){b.addEventListener('click',function(){var k=this.dataset.delcol;if(!confirm('Remove column "'+k+'"? Data in this column will be lost.'))return;var ex=lkExtraCols();var i=ex.findIndex(function(c){return c.key===k;});if(i>=0)ex.splice(i,1);getBu().lookup.forEach(function(r){delete r[k];});saveProfiles();renderLookup();});});}
+function renderLookup(){var tb=ge('lkBody');if(!tb)return;updateLkHeaders();tb.innerHTML='';var cols=lkAllCols();getBu().lookup.forEach(function(row,i){var tr=document.createElement('tr');tr.id='lk-'+i;var cells='<td><span class="sltag">'+esc(row.sl)+'</span><input class="li" value="'+esc(row.sl)+'" style="width:68px" data-lk="'+i+'" data-field="sl"></td>';cols.forEach(function(c){cells+='<td><input class="li" value="'+esc(row[c.key]||'')+'" placeholder="—" data-lk="'+i+'" data-field="'+esc(c.key)+'"></td>';});cells+='<td><button class="bdel" data-del-lk="'+i+'" type="button">&times;</button></td>';tr.innerHTML=cells;tb.appendChild(tr);arrowNav(tr);tr.querySelectorAll('[data-lk]').forEach(function(el){el.addEventListener('change',function(){var idx=parseInt(this.dataset.lk);if(getBu().lookup[idx]){getBu().lookup[idx][this.dataset.field]=this.value;saveProfiles();buildSlSel();updateAf();}});});var d=tr.querySelector('[data-del-lk]');if(d)d.addEventListener('click',function(){if(!confirm('Remove?'))return;getBu().lookup.splice(parseInt(this.dataset.delLk),1);saveProfiles();renderLookup();});});tBodyArrow(tb);buildSlSel();updateAf();}
+function addSlRow(){var nr={sl:'New SL',leader:'',sgl:'',hrbp:'',finance:'',risk:'',people:'',marketing:'',insight:'',km:''};lkExtraCols().forEach(function(c){nr[c.key]='';});getBu().lookup.push(nr);saveProfiles();renderLookup();}
+function addLkCol(){var name=prompt('New column name (e.g. "Talent", "L&D Contact"):');if(!name)return;name=name.trim();if(!name)return;var key='x_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');if(!key||key==='x_')key='x_col'+Date.now();var ex=lkExtraCols();if(ex.some(function(c){return c.key===key;})||['sl','leader'].indexOf(key)>=0||LKF.indexOf(key)>=0){alert('A column with a similar name already exists.');return;}ex.push({key:key,label:name});getBu().lookup.forEach(function(r){if(r[key]===undefined)r[key]='';});saveProfiles();renderLookup();}
+function resetLookup(){if(!confirm('Reset the Service Line Lookup to the built-in defaults? This also clears any custom columns.'))return;getBu().lookup=JSON.parse(JSON.stringify(DEF_LK));getBu().lkExtraCols=[];saveProfiles();renderLookup();}
+function handleLkCsv(file){var r=new FileReader();r.onload=function(ev){var lines=ev.target.result.split('\n').map(function(l){return l.replace(/\r$/,'').trim();}).filter(Boolean);if(lines.length<2){alert('CSV needs a header row and at least one data row.');return;}
+  var headers=parseCsv(lines[0]).map(function(h){return h.trim();});
+  var cols=lkAllCols();var labs=getBu().labels||DEF_LABELS;
+  // Build a map: csv column index -> internal key, by matching header text to labels/keys
+  function keyForHeader(h){var hl=h.toLowerCase().replace(/&amp;/g,'&').trim();
+    if(hl==='service line'||hl==='sl')return 'sl';
+    for(var i=0;i<cols.length;i++){var c=cols[i];if(hl===String(c.label).toLowerCase().replace(/&amp;/g,'&').trim()||hl===c.key.toLowerCase())return c.key;}
+    // legacy header aliases
+    var alias={'sl leader':'leader','leader':'leader','ops lead':'sgl','ops leader':'sgl','sgl':'sgl','pbp':'hrbp','hrbp':'hrbp','finance':'finance','risk':'risk','risk & contracting':'risk','people':'people','people & perf.':'people','marketing':'marketing','insight center':'insight','insight':'insight','knowledge mgmt':'km','km':'km'};
+    if(alias[hl])return alias[hl];
+    return null;}
+  // Unknown headers define NEW custom columns for this BU / Region.
+  var newCols=0;
+  headers.forEach(function(h){if(!h||h.trim()==='')return;if(keyForHeader(h)!==null)return;var name=h.trim();var key='x_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');if(!key||key==='x_')return;var ex=lkExtraCols();if(ex.some(function(c){return c.key===key;}))return;ex.push({key:key,label:name});getBu().lookup.forEach(function(rw){if(rw[key]===undefined)rw[key]='';});newCols++;});
+  if(newCols){cols=lkAllCols();}
+  var map=headers.map(keyForHeader);
+  var overwrite=ge('lkCsvOverwrite')&&ge('lkCsvOverwrite').checked;
+  if(overwrite)getBu().lookup=[];
+  var added=0,updated=0;
+  lines.slice(1).forEach(function(line){var p=parseCsv(line);var rec={};map.forEach(function(k,ci){if(k)rec[k]=(p[ci]||'').trim();});if(!rec.sl)return;
+    var existing=getBu().lookup.find(function(x){return (x.sl||'').trim().toLowerCase()===rec.sl.toLowerCase();});
+    if(existing&&!overwrite){Object.keys(rec).forEach(function(k){if(rec[k])existing[k]=rec[k];});updated++;}
+    else{var base={sl:'',leader:'',sgl:'',hrbp:'',finance:'',risk:'',people:'',marketing:'',insight:'',km:''};lkExtraCols().forEach(function(c){base[c.key]='';});Object.assign(base,rec);getBu().lookup.push(base);added++;}
+  });
+  if(ge('lkCsvOverwrite'))ge('lkCsvOverwrite').checked=false;
+  saveProfiles();renderLookup();alert('Import complete. '+added+' added'+(updated?', '+updated+' updated':'')+(newCols?', '+newCols+' new column'+(newCols>1?'s':'')+' created':'')+'.');};r.readAsText(file);}
+function dlLkTmpl(){var cols=lkAllCols();var header=['Service Line'].concat(cols.map(function(c){return String(c.label).replace(/&amp;/g,'&');}));var sample=['CTS'].concat(cols.map(function(c){return c.key==='leader'?'Richard Holt':'';}));dl(header.join(',')+'\n'+sample.join(',')+'\n','sl_lookup_template.csv','text/csv');}
+function renderLabelInputs(){var labs=getBu().labels||DEF_LABELS;LKF.forEach(function(k){var el=ge('lbl_'+k);if(el)el.value=labs[k]||'';});}
+function saveLabelInputs(){var labs=getBu().labels||(getBu().labels={});LKF.forEach(function(k){var el=ge('lbl_'+k);if(el&&el.value.trim())labs[k]=el.value.trim();});saveProfiles();updateLkHeaders();updateAf();renderTemplate();}
+function addObRow(data){var r=data||{id:uid(),name:'General Onboarding',date:'',time:'12:00',location:'',notes:''};if(!data){getBu().onboarding.push(r);saveProfiles();}var tr=document.createElement('tr');tr.id='ob-'+r.id;tr.innerHTML='<td><input class="li" value="'+esc(r.name)+'" placeholder="Session name" data-id="'+r.id+'" data-field="name"></td><td><input class="li" type="date" value="'+esc(r.date)+'" data-id="'+r.id+'" data-field="date"></td><td><input class="li" type="time" value="'+esc(r.time)+'" data-id="'+r.id+'" data-field="time"></td><td><input class="li" value="'+esc(r.location)+'" placeholder="Virtual / City" data-id="'+r.id+'" data-field="location"></td><td><input class="li" value="'+esc(r.notes)+'" placeholder="Notes" data-id="'+r.id+'" data-field="notes"></td><td><button class="bdel" data-del-ob="'+r.id+'" type="button">&times;</button></td>';ge('obBody').appendChild(tr);arrowNav(tr);wire(tr,'[data-id]',function(el){var o=getBu().onboarding.find(function(x){return x.id===el.dataset.id;});if(o){o[el.dataset.field]=el.value;saveProfiles();updateObPrev();}});var d=tr.querySelector('[data-del-ob]');if(d)d.addEventListener('click',function(){getBu().onboarding=getBu().onboarding.filter(function(x){return x.id!==this.dataset.delOb;}.bind(this));var t=ge('ob-'+this.dataset.delOb);if(t)t.remove();saveProfiles();updateObPrev();});}
+function renderOb(){ge('obBody').innerHTML='';getBu().onboarding.forEach(function(r){addObRow(r);});}
+function handleObCsv(file){var r=new FileReader();r.onload=function(ev){var lines=ev.target.result.split('\n').map(function(l){return l.trim();}).filter(Boolean);var added=0;lines.slice(1).forEach(function(line){var p=parseCsv(line);if(!p[0]&&!p[1])return;getBu().onboarding.push({id:uid(),name:p[0]||'General Onboarding',date:p[1]||'',time:p[2]||'',location:p[3]||'',notes:p[4]||''});added++;});saveProfiles();renderOb();updateObPrev();alert('Imported '+added+' session(s).');};r.readAsText(file);}
+function dlObTmpl(){dl('Session Name,Date (YYYY-MM-DD),Time (HH:MM),Location,Notes\nGeneral Onboarding,2026-01-05,09:00,Virtual,Q1\n','onboarding_template.csv','text/csv');}
+function reloadOb(){if(!confirm('Replace with 2026 defaults?'))return;getBu().onboarding=JSON.parse(JSON.stringify(PRELOADED_OB));saveProfiles();renderOb();updateObPrev();}
+function addRosterRow(data){var r=data||{id:uid(),name:'',level:'MD',sl:getSlNames()[0]||'',city:'',email:''};if(!data){getBu().roster.push(r);saveProfiles();}var slO=getSlNames().map(function(n){return'<option value="'+esc(n)+'"'+(n===r.sl?' selected':'')+'>'+esc(n)+'</option>';}).join('');var lvO=['MD','SD','Director','Manager'].map(function(l){return'<option'+(l===r.level?' selected':'')+'>'+l+'</option>';}).join('');var tr=document.createElement('tr');tr.id='ro-'+r.id;tr.innerHTML='<td><input class="li" value="'+esc(r.name)+'" placeholder="First Last" data-id="'+r.id+'" data-field="name"></td><td><select class="li" data-id="'+r.id+'" data-field="level">'+lvO+'</select></td><td><select class="li" data-id="'+r.id+'" data-field="sl">'+slO+'</select></td><td><input class="li" value="'+esc(r.city)+'" placeholder="City" data-id="'+r.id+'" data-field="city"></td><td><input class="li" type="email" value="'+esc(r.email||'')+'" placeholder="name@alvarezandmarsal.com" data-id="'+r.id+'" data-field="email"></td><td><button class="bdel" data-del-ro="'+r.id+'" type="button">&times;</button></td>';ge('rosterBody').appendChild(tr);arrowNav(tr);wire(tr,'[data-id]',function(el){var rx=getBu().roster.find(function(x){return x.id===el.dataset.id;});if(rx){rx[el.dataset.field]=el.value;saveProfiles();if(el.dataset.field==='city')rebuildCityDd();}});var d=tr.querySelector('[data-del-ro]');if(d)d.addEventListener('click',function(){getBu().roster=getBu().roster.filter(function(x){return x.id!==this.dataset.delRo;}.bind(this));var t=ge('ro-'+this.dataset.delRo);if(t)t.remove();saveProfiles();rebuildCityDd();});rebuildCityDd();}
+function renderRoster(){ge('rosterBody').innerHTML='';getBu().roster.forEach(function(r){addRosterRow(r);});}
+function handleRosterCsv(file){var r=new FileReader();r.onload=function(ev){var lines=ev.target.result.split('\n').map(function(l){return l.trim();}).filter(Boolean);if(!lines.length)return;var header=lines[0].toLowerCase().replace(/"/g,'');if(header.indexOf('name')<0){alert('CSV needs: Name (First Last), Level, Service Line, City, Email');return;}var cols=header.split(',').map(function(c){return c.trim();});function getC(row,keys){var p=parseCsv(row);for(var ki=0;ki<keys.length;ki++){var idx=-1;for(var ci=0;ci<cols.length;ci++){if(cols[ci].indexOf(keys[ki])>=0){idx=ci;break;}}if(idx>=0)return(p[idx]||'').replace(/"/g,'').trim();}return'';}var added=0;lines.slice(1).forEach(function(line){var name=getC(line,['name']);if(!name)return;getBu().roster.push({id:uid(),name:name,level:getC(line,['level'])||'MD',sl:getC(line,['service','sl'])||getSlNames()[0]||'',city:getC(line,['city'])||'',email:getC(line,['email','e-mail'])||''});added++;});saveProfiles();renderRoster();rebuildCityDd();alert('Imported '+added+' people.');};r.readAsText(file);}
+function dlRosterTmpl(){dl('Name (First Last),Level,Service Line,City,Email\nJohn Smith,MD,CTS,Chicago,john.smith@alvarezandmarsal.com\nJane Doe,MD,CFO Services,Houston,jane.doe@alvarezandmarsal.com\n','key_contacts_template.csv','text/csv');}
+function addVideoRow(data){var r=data||{id:uid(),title:'',url:''};if(!data){getBu().videos.push(r);saveProfiles();}var tr=document.createElement('tr');tr.id='vid-'+r.id;tr.innerHTML='<td><input class="li" value="'+esc(r.title)+'" placeholder="Video title" data-id="'+r.id+'" data-field="title"></td><td><input class="li" value="'+esc(r.url)+'" placeholder="https://..." data-id="'+r.id+'" data-field="url"></td><td><button class="bdel" data-del-vid="'+r.id+'" type="button">&times;</button></td>';ge('videoBody').appendChild(tr);arrowNav(tr);wire(tr,'[data-id]',function(el){var vx=getBu().videos.find(function(x){return x.id===el.dataset.id;});if(vx){vx[el.dataset.field]=el.value;saveProfiles();}});var d=tr.querySelector('[data-del-vid]');if(d)d.addEventListener('click',function(){getBu().videos=getBu().videos.filter(function(x){return x.id!==this.dataset.delVid;}.bind(this));var t=ge('vid-'+this.dataset.delVid);if(t)t.remove();saveProfiles();});}
+function renderVideos(){ge('videoBody').innerHTML='';(getBu().videos||[]).forEach(function(r){addVideoRow(r);});}
+function exportData(){dl(JSON.stringify({profiles:PROFILES,curBu:CUR_BU,session:S},null,2),'md_schedule_all_data.json','application/json');}
+function importData(){var inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.addEventListener('change',function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(d.profiles)PROFILES=d.profiles;if(d.curBu)CUR_BU=d.curBu;if(d.session)Object.assign(S,d.session);Object.keys(PROFILES).forEach(function(bu){var x=PROFILES[bu];if(!x.labels)x.labels=JSON.parse(JSON.stringify(DEF_LABELS));if(!x.template)x.template=JSON.parse(JSON.stringify(DEF_TEMPLATE));if(!x.videos)x.videos=JSON.parse(JSON.stringify(DEF_VIDEOS));if(!x.library)x.library=[];if(!x.lkExtraCols)x.lkExtraCols=[];if(!x.onboarding||!x.onboarding.length)x.onboarding=JSON.parse(JSON.stringify(PRELOADED_OB));});saveProfiles();persistSession();rebuildBuSel();restoreInputs();renderCrossBu();renderLookup();renderRoster();renderOb();renderVideos();renderTemplate();renderLib();renderLabelInputs();updateLkHeaders();buildInpBuSel();if(S.generated){renderSchedule();renderSummary();renderQv();updateSchedCount();}alert('Data imported.');}catch(e){alert('Invalid file: '+e.message);}};r.readAsText(f);});inp.click();}
+function switchTab(name){ALL_TABS.forEach(function(t){var p=ge('pane-'+t),b=ge('tab-'+t);if(p)p.style.display=t===name?'block':'none';if(b)b.classList.toggle('active',t===name);});if(name==='summary')renderSummary();if(name==='quickview')renderQv();if(name==='saved')renderLib();if(name==='template')renderTemplate();}
+function clearInputs(){if(!confirm('Clear all inputs and start a new MD schedule? (Saved schedules are not affected.)'))return;S.inputs={mdName:'',mdEmail:'',buSel:S.inputs.buSel||'',sl:'',startDate:'',pm:'',ea:'',buddy:'',city:'',cityMode:''};S.crossBu=[];S.rows=[];S.generated=false;S.introWarn=[];var _coc=ge('inp-city-other');if(_coc){_coc.value='';_coc.style.display='none';}persistSession();restoreInputs();renderCrossBu();var sc=ge('schedContent');if(sc)sc.innerHTML='';var iw=ge('introWarn');if(iw){iw.style.display='none';iw.innerHTML='';}updateSchedCount();switchTab('input');}
+function restoreInputs(){var inp=S.inputs;ge('inp-mdName').value=inp.mdName||'';var _me=ge('inp-mdEmail');if(_me)_me.value=inp.mdEmail||'';ge('inp-startDate').value=inp.startDate||'';ge('inp-pm').value=inp.pm||'';ge('inp-ea').value=inp.ea||'';ge('inp-buddy').value=inp.buddy||'';buildSlSel();if(inp.sl){var sl=ge('inp-sl');if(sl)sl.value=inp.sl;}rebuildCityDd();var isOtherCity=(S.inputs.cityMode==='Other')||(inp.city&&(function(){var seen=false;getBu().roster.forEach(function(r){if((r.city||'')===inp.city)seen=true;});return !seen&&inp.city!=='';})());var _co=ge('inp-city-other');if(_co){_co.value=isOtherCity?(inp.city||''):'';_co.style.display=isOtherCity?'block':'none';}var ci=ge('inp-city');if(ci){if(isOtherCity)ci.value='Other';else if(inp.city)ci.value=inp.city;}buildInpBuSel();if(inp.buSel){var bs=ge('inp-bu-sel');if(bs)bs.value=inp.buSel;}updateAf();updatePill();updateGenBtn();updateObPrev();}
+function signOut(){var a=ge('app');if(a)a.style.display='none';ge('rolePicker').style.display='flex';document.body.classList.remove('app-active');document.querySelectorAll('.rp-btn').forEach(function(b){b.classList.remove('sel');});ge('rpGoBtn').disabled=true;}
+
+
+
+function migrateSavedData(){
+  var changed=false;
+  function fixScheduler(v){if(typeof v!=='string')return v;var n=v.replace(/\[EA\]\s*\/\s*Onboarding/g,'EA').replace(/EA\s*\/\s*Onboarding/g,'EA');if(n!==v)changed=true;return n;}
+  function fixMentor(v){if(typeof v!=='string')return v;var n=v.replace(/MD Buddy/g,'MD Mentor').replace(/\[Buddy\]/g,'[Mentor]');if(n!==v)changed=true;return n;}
+  Object.keys(PROFILES).forEach(function(bu){
+    var p=PROFILES[bu];
+    if(p.template&&p.template.forEach){p.template.forEach(function(t){
+      if(t.scheduler)t.scheduler=fixScheduler(t.scheduler);
+      if(t.attendees)t.attendees=fixMentor(t.attendees);
+      if(t.topic)t.topic=fixMentor(t.topic);
+    });}
+    if(p.library&&p.library.forEach){p.library.forEach(function(entry){
+      if(entry.rows&&entry.rows.forEach)entry.rows.forEach(function(r){
+        if(r.scheduler)r.scheduler=fixScheduler(r.scheduler);
+        if(r.attendees)r.attendees=fixMentor(r.attendees);
+        if(r.topic)r.topic=fixMentor(r.topic);
+      });
+    });}
+  });
+  if(S&&S.rows&&S.rows.forEach){S.rows.forEach(function(r){
+    if(r.scheduler)r.scheduler=fixScheduler(r.scheduler);
+    if(r.attendees)r.attendees=fixMentor(r.attendees);
+    if(r.topic)r.topic=fixMentor(r.topic);
+  });}
+  if(changed){saveProfiles();persistSession();}
+}
+
+function boot(){
+  loadProfiles();loadSession();Object.keys(PROFILES).forEach(function(bu){if(!PROFILES[bu].lkExtraCols)PROFILES[bu].lkExtraCols=[];});
+  migrateSavedData();
+  // loadSpConfig() removed — PA IIFE handles SP config
+  if(!PROFILES['CPI'])PROFILES['CPI']=defBu();
+  rebuildBuSel();restoreInputs();renderCrossBu();renderLookup();renderRoster();renderOb();renderVideos();renderTemplate();renderLib();renderLabelInputs();updateLkHeaders();buildInpBuSel();
+  if(S.generated&&S.rows.length){renderSchedule();renderSummary();renderQv();updateSchedCount();renderIntroWarn();}
+  var selRole=null;
+  function pickRole(r){selRole=r;document.querySelectorAll('.rp-btn').forEach(function(b){b.classList.remove('sel');});var btn=ge('rpBtn'+r.charAt(0).toUpperCase()+r.slice(1));if(btn)btn.classList.add('sel');ge('rpGoBtn').disabled=false;}
+  ge('rpBtnBuilder').addEventListener('click',function(){pickRole('builder');});
+  ge('rpBtnAdmin').addEventListener('click',function(){pickRole('admin');});
+  ge('rpGoBtn').addEventListener('click',function(){
+    if(!selRole)return;
+    setMode(selRole);ge('rolePicker').style.display='none';ge('app').style.display='block';document.body.classList.add('app-active');switchTab(selRole==='builder'?'input':'instructions');
+  });
+  ge('switchModeBtn').addEventListener('click',function(){var nm=MODE==='admin'?'builder':'admin';setMode(nm);if(nm==='builder'){var cur=ALL_TABS.find(function(t){var p=ge('pane-'+t);return p&&p.style.display!=='none';});if(cur&&['template','source'].indexOf(cur)>=0)switchTab('instructions');}});
+  ge('signOutBtn').addEventListener('click',signOut);
+  ge('mainNav').addEventListener('click',function(e){var btn=e.target.closest('.ntab[data-tab]');if(btn)switchTab(btn.dataset.tab);});
+  ['inp-mdName','inp-mdEmail','inp-pm','inp-ea','inp-buddy'].forEach(function(id){var el=ge(id);if(el)el.addEventListener('input',autoSave);});
+  ['inp-bu-sel','inp-sl'].forEach(function(id){var el=ge(id);if(el)el.addEventListener('change',autoSave);});
+  var _cityy=ge('inp-city');if(_cityy)_cityy.addEventListener('change',function(){syncCityOther();autoSave();});
+  var _cityo=ge('inp-city-other');if(_cityo)_cityo.addEventListener('input',autoSave);
+  ge('inp-sl').addEventListener('change',onSlChange);
+  ge('inp-startDate').addEventListener('change',onSDChange);
+  ge('inp-bu-sel').addEventListener('change',function(){S.inputs.buSel=this.value;persistSession();});
+  ge('addCrossBtn').addEventListener('click',function(){addCrossRow();});ge('addCrossBtn2').addEventListener('click',function(){addCrossRow();});
+  ge('genBtn').addEventListener('click',generateSchedule);var _ci=ge('clearInpBtn');if(_ci)_ci.addEventListener('click',clearInputs);
+  ge('saveSchedBtn').addEventListener('click',saveCurrentSchedule);ge('printBtn').addEventListener('click',function(){window.print();});
+  var _xls=ge('exportXlsxBtn');if(_xls)_xls.addEventListener('click',exportXlsx);
+  ge('exportLibBtn').addEventListener('click',exportLib);ge('importLibBtn').addEventListener('click',importLib);
+  ge('buProfileSel').addEventListener('change',function(){switchBu(this.value);});
+  ge('newBuBtn').addEventListener('click',function(){var inp=ge('newBuInput');var name=inp?inp.value.trim():'';if(!name){if(inp)inp.focus();return;}if(!PROFILES[name])PROFILES[name]=defBu();CUR_BU=name;saveProfiles();switchBu(name);rebuildBuSel();buildInpBuSel();if(inp)inp.value='';});
+  ge('saveBuBtn').addEventListener('click',function(){saveProfiles();alert('BU "'+CUR_BU+'" saved.');});
+  ge('delBuBtn').addEventListener('click',function(){if(!confirm('Delete "'+CUR_BU+'"?'))return;delete PROFILES[CUR_BU];var rem=Object.keys(PROFILES);if(!rem.length){PROFILES['CPI']=defBu();rem=['CPI'];}CUR_BU=rem[0];saveProfiles();rebuildBuSel();switchBu(CUR_BU);buildInpBuSel();});
+  ge('saveTmplBtn').addEventListener('click',saveTmpl);ge('saveTmplBtn2').addEventListener('click',saveTmpl);var _stbt=ge('saveBuFromTmpl');if(_stbt)_stbt.addEventListener('click',function(){saveProfiles();alert('BU profile "'+CUR_BU+'" saved.');});var _ssbt=ge('saveBuFromSource');if(_ssbt)_ssbt.addEventListener('click',function(){saveProfiles();alert('BU profile "'+CUR_BU+'" saved.');});
+  ge('addTmplRowBtn').addEventListener('click',addTmplRow);ge('addTmplRowBtn2').addEventListener('click',addTmplRow);
+  ge('uploadLkCsvBtn').addEventListener('click',function(){ge('lkCsvUp').click();});ge('lkCsvUp').addEventListener('change',function(){if(this.files[0])handleLkCsv(this.files[0]);this.value='';});ge('dlLkTemplateBtn').addEventListener('click',dlLkTmpl);ge('addSlBtn').addEventListener('click',addSlRow);ge('addSlBtn2').addEventListener('click',addSlRow);ge('resetLkBtn').addEventListener('click',resetLookup);var _alc=ge('addLkColBtn');if(_alc)_alc.addEventListener('click',addLkCol);
+  ge('uploadObCsvBtn').addEventListener('click',function(){ge('obCsvUp').click();});ge('obCsvUp').addEventListener('change',function(){if(this.files[0])handleObCsv(this.files[0]);this.value='';});ge('dlObTemplateBtn').addEventListener('click',dlObTmpl);ge('addObBtn').addEventListener('click',function(){addObRow();});ge('addObBtn2').addEventListener('click',function(){addObRow();});ge('reloadObBtn').addEventListener('click',reloadOb);
+  ge('uploadCsvBtn').addEventListener('click',function(){ge('csvUp').click();});ge('csvUp').addEventListener('change',function(){if(this.files[0])handleRosterCsv(this.files[0]);this.value='';});ge('dlTemplateBtn').addEventListener('click',dlRosterTmpl);ge('addRosterBtn').addEventListener('click',function(){addRosterRow();});ge('addRosterBtn2').addEventListener('click',function(){addRosterRow();});
+  ge('addVideoBtn').addEventListener('click',function(){addVideoRow();});
+  ge('exportDataBtn').addEventListener('click',exportData);ge('importDataBtn').addEventListener('click',importData);
+  ge('ctxFillDown').addEventListener('click',function(){fillDown(true);});ge('ctxFillAll').addEventListener('click',function(){fillDown(false);});
+  document.addEventListener('click',hideCtx);document.addEventListener('keydown',function(e){if(e.key==='Escape')hideCtx();});
+  // SP functions handled by PA IIFE — stubs only
+  var _spp=ge('spPullBtn');if(_spp)_spp.addEventListener('click',function(){if(typeof window._paPull==='function')window._paPull();});
+  var _sppu=ge('spPushBtn');if(_sppu)_sppu.addEventListener('click',function(){if(typeof window._paPush==='function')window._paPush();});
+  var _spom=ge('spOpenMdBtn');if(_spom)_spom.addEventListener('click',function(){if(typeof window._paPicker==='function')window._paPicker();});
+  var _papa=ge('paSaveBtn');if(_papa)_papa.addEventListener('click',function(){if(typeof window._paPush==='function')window._paPush();});
+}
+
+// ── _app bridge — inside main IIFE so PROFILES/CUR_BU/S are in scope ────────
+window._app={
+  getState:function(){
+    var mdRows={};try{var r=localStorage.getItem(MRK);if(r)mdRows=JSON.parse(r);}catch(e){}
+    return{profiles:PROFILES,curBu:CUR_BU,
+      session:{inputs:JSON.parse(JSON.stringify(S.inputs)),crossBu:JSON.parse(JSON.stringify(S.crossBu)),rows:JSON.parse(JSON.stringify(S.rows)),generated:S.generated},
+      mdRows:mdRows};
+  },
+  applyState:function(p,b,sess){
+    if(p){PROFILES=p;Object.keys(PROFILES).forEach(function(bu){var x=PROFILES[bu];if(!x.labels)x.labels=JSON.parse(JSON.stringify(DEF_LABELS));if(!x.template)x.template=JSON.parse(JSON.stringify(DEF_TEMPLATE));if(!x.videos)x.videos=JSON.parse(JSON.stringify(DEF_VIDEOS));if(!x.library)x.library=[];if(!x.lkExtraCols)x.lkExtraCols=[];if(!x.onboarding||!x.onboarding.length)x.onboarding=JSON.parse(JSON.stringify(PRELOADED_OB));});}
+    if(b)CUR_BU=b;
+    if(!PROFILES[CUR_BU])PROFILES[CUR_BU]={};
+    if(sess&&sess.inputs){S.inputs=Object.assign({mdName:'',mdEmail:'',buSel:'',sl:'',startDate:'',pm:'',ea:'',buddy:'',city:''},sess.inputs);S.crossBu=Array.isArray(sess.crossBu)?sess.crossBu:[];S.rows=Array.isArray(sess.rows)?sess.rows:[];S.generated=!!(sess.generated||(sess.rows&&sess.rows.length>0));}
+    else{S.inputs={mdName:'',mdEmail:'',buSel:CUR_BU,sl:'',startDate:'',pm:'',ea:'',buddy:'',city:''};S.crossBu=[];S.rows=[];S.generated=false;}
+    try{localStorage.setItem(PK,JSON.stringify(PROFILES));}catch(e){}
+    try{localStorage.setItem(CK,CUR_BU);}catch(e){}
+    try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
+    rebuildBuSel();restoreInputs();renderCrossBu();renderLookup();renderRoster();renderOb();renderVideos();renderTemplate();renderLib();renderLabelInputs();updateLkHeaders();buildInpBuSel();
+    if(S.generated&&S.rows&&S.rows.length){renderSchedule();renderSummary();renderQv();updateSchedCount();}
+    var cf=document.getElementById('_paCardFile');
+    if(cf){cf.textContent='';cf.style.color='#166534';}
+    var pill=document.getElementById('hdrPill');
+    if(pill)pill.textContent=S.inputs.mdName||(CUR_BU?'Active: '+CUR_BU:'No MD selected');
+  },
+  hookSave:function(fn){var o=saveProfiles;saveProfiles=function(){o();fn();};}
+};
+
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}else{boot();}
+})();
+
+// POWER AUTOMATE SYNC — v17 pattern
+// ═══════════════════════════════════════════════════════
+(function(){
+  // ── Paste your two Power Automate HTTP-trigger URLs here ──────────────────
+  var LOAD_URL='https://defaultdd5e230fc16549c4957fe203458fff.ab.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8b52e4c106844b74b4a193b95fcc9aa0/triggers/manual/paths/invoke?api-version=1';
+  var SAVE_URL='https://defaultdd5e230fc16549c4957fe203458fff.ab.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0863e6b54cd34c17b2536608c4cc1c18/triggers/manual/paths/invoke?api-version=1';
+
+  var PA_KEY='mdIntPlanner_pa_v1';
+  // URLs hardcoded — no localStorage override
+
+  var _file='', _buKey='', _lastTs='', _timer=null;
+
+  function _encFile(f){return f.split('/').map(encodeURIComponent).join('/');}
+
+  // Read ?md= and ?bu= from URL — sets _file and _buKey
+  function _params(){
+    var p=new URLSearchParams(window.location.search);
+    var md=(p.get('md')||'').trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+    var buRaw=(p.get('bu')||'').trim();
+    _buKey=buRaw; // preserve exact BU name for display
+    // Folder slug: "Energy & Chemicals" → "Energy-Chemicals", "CTS (EMEA)" → "CTS-EMEA"
+    var buSlug=buRaw.replace(/[&\/]+/g,'').replace(/\s*\(([^)]+)\)/g,'-$1').trim().replace(/\s+/g,'-').replace(/[^a-zA-Z0-9\-]/g,'').replace(/-+/g,'-').replace(/^-|-$/g,'');
+    _file=(md&&buSlug)?'Builder/'+buSlug+'/'+md+'.json':'';
+  }
+
+  // ── Badge (bottom-right) ─────────────────────────────────────────────────
+  function _badge(){
+    if(document.getElementById('_paBadge'))return;
+    var b=document.createElement('div');
+    b.id='_paBadge';
+    b.style.cssText='position:fixed;bottom:16px;right:16px;z-index:9999;background:#1e3a5f;color:#fff;'
+      +'padding:8px 14px;border-radius:8px;font-size:11px;box-shadow:0 2px 12px rgba(0,0,0,.3);'
+      +'line-height:1.6;cursor:pointer;min-width:160px;font-family:Arial,sans-serif';
+    b.innerHTML=_file
+      ?'<div style="font-weight:bold;color:#7dd3fc">&#128196; Active File</div>'
+        +'<div>'+_file+'</div>'
+        +'<div id="_paStatus" style="color:#86efac;font-size:10px">PA: Ready</div>'
+      :'<div style="font-weight:bold;color:#fbbf24">&#9888; No MD selected</div>'
+        +'<div style="font-size:10px;color:#d1d5db">Click to open MD picker</div>';
+    b.onclick=_picker;
+    document.body.appendChild(b);
+  }
+
+  function _status(txt,col){
+    var el=document.getElementById('_paStatus');
+    if(el){el.textContent=txt;el.style.color=col||'#86efac';}
+    var el2=document.getElementById('_paStatus2');
+    if(el2){el2.textContent=txt;el2.style.color=col||'#86efac';}
+    var pill=document.getElementById('hdrPill');
+    if(pill)pill.textContent=_file?_file:'No MD selected';
+  }
+
+  // ── MD Picker popup ──────────────────────────────────────────────────────
+  function _picker(){
+    if(document.getElementById('_paPicker'))return;
+    var reg=_loadRegistry();
+    var listHtml='';
+    if(reg.length){
+      var rows='';
+      reg.slice().reverse().forEach(function(it){
+        var fparts=(it.filename||'').replace('Builder/','').split('/');
+        var bu=it.curBu||(fparts.length>1?fparts[0]:'');
+        var slug=(fparts.length>1?fparts[1]:fparts[0]||'').replace('.json','');
+        var mdName=it.mdName||(slug.split('-').map(function(w){return w?w.charAt(0).toUpperCase()+w.slice(1):'';}).join(' '));
+        var sub=bu+(it.sl?' · '+it.sl:'')+(it.startDate?' · Start: '+it.startDate:'');
+        rows+='<div class="_paRow" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #f0f0f0;cursor:pointer" data-f="'+it.filename+'">'
+             +'<div>'
+             +'<div style="font-size:13px;font-weight:600;color:#1e3a5f">'+esc(mdName||it.filename)+'</div>'
+             +'<div style="font-size:10px;color:#888;margin-top:2px">'+esc(sub)+'</div>'
+             +'</div>'
+             +'<button style="background:#1e3a5f;color:#fff;border:none;border-radius:4px;padding:4px 14px;font-size:11px;cursor:pointer;flex-shrink:0">Open</button>'
+             +'</div>';
+      });
+      listHtml='<div style="margin-bottom:16px">'
+        +'<div style="font-size:10px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Existing Plans</div>'
+        +'<div id="_paList" style="border:1px solid #e5e7eb;border-radius:6px;max-height:190px;overflow-y:auto">'+rows+'</div>'
+        +'</div>';
+    }
+    var d=document.createElement('div');
+    d.id='_paPicker';
+    d.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.6);'
+      +'display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif';
+    d.innerHTML=
+      '<div style="background:#fff;border-radius:12px;padding:28px 32px;width:440px;'
+        +'max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.35)">'
+      +'<div style="font-size:17px;font-weight:bold;color:#1e3a5f;margin-bottom:4px">MD Onboarding Plan</div>'
+      +'<div style="font-size:12px;color:#666;margin-bottom:18px">Open an existing plan or create a new one.</div>'
+      +listHtml
+      +(listHtml?'<div style="font-size:10px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">New MD</div>':'')
+      +'<div style="margin-bottom:10px">'
+        +'<label style="font-size:11px;font-weight:bold;color:#444;display:block;margin-bottom:4px">MD Full Name</label>'
+        +'<input id="_paMd" placeholder="e.g. John Smith" style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;box-sizing:border-box">'
+      +'</div>'
+      +'<div style="margin-bottom:14px">'
+        +'<label style="font-size:11px;font-weight:bold;color:#444;display:block;margin-bottom:4px">Business Unit</label>'
+        +'<select id="_paBu" style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;box-sizing:border-box">'
+        +'<option value="">-- Select BU --</option>'
+        +['AAI','CPI','CRG','Energy & Chemicals','Financial Services','HIG','Life Sciences','Public Sector','CTS (EMEA)','DTS (EMEA)','CTG','Corporate / GESS','DI','Infra','NACR','REST (EMEA)','PEPI (US)','PEPI (EMEA)','TAG','Tax','Valuation','LATAM','SAS','SPI / THL','North Asia','Southeast Asia','Australia'].map(function(b){return'<option value="'+esc(b)+'">'+esc(b)+'</option>';}).join('')
+        +'</select>'
+      +'</div>'
+      +'<div style="font-size:10px;color:#999;margin-bottom:14px">Will open: <strong id="_paPreview" style="color:#1e3a5f">—</strong></div>'
+      +'<div style="display:flex;gap:10px">'
+        +'<button id="_paOpen" style="flex:1;background:#1e3a5f;color:#fff;border:none;border-radius:6px;'
+          +'padding:10px;font-size:13px;font-weight:bold;cursor:pointer">Open / Create Plan</button>'
+        +'<button id="_paSkip" style="background:#f5f5f5;color:#666;border:1px solid #ddd;border-radius:6px;'
+          +'padding:10px 16px;font-size:13px;cursor:pointer">Skip</button>'
+      +'</div>'
+      +'</div>';
+    document.body.appendChild(d);
+
+    // Existing rows hover + click
+    d.querySelectorAll('._paRow').forEach(function(row){
+      row.addEventListener('mouseenter',function(){this.style.background='#f0f7ff';});
+      row.addEventListener('mouseleave',function(){this.style.background='';});
+      row.addEventListener('click',function(){
+        var fname=this.getAttribute('data-f');
+        var parts=fname.replace('Builder/','').split('/');
+        var bu=parts[0]||'';
+        var slug=parts[1]||parts[0];
+        slug=slug.replace('.json','');
+        window.location.href=window.location.pathname+'?md='+encodeURIComponent(slug)+'&bu='+encodeURIComponent(bu);
+      });
+    });
+
+    // Preview — Builder/{bu-slug}/{md-slug}.json
+    function _prev(){
+      var md=(document.getElementById('_paMd').value||'').trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+      var bu=(document.getElementById('_paBu').value||'').trim();
+      var buSlug=bu.replace(/[&\/]+/g,'').replace(/\s*\(([^)]+)\)/g,'-$1').trim().replace(/\s+/g,'-').replace(/[^a-zA-Z0-9\-]/g,'').replace(/-+/g,'-').replace(/^-|-$/g,'');
+      document.getElementById('_paPreview').textContent=(md&&buSlug)?'Builder/'+buSlug+'/'+md+'.json':'—';
+    }
+    document.getElementById('_paMd').addEventListener('input',_prev);
+    document.getElementById('_paBu').addEventListener('change',_prev);
+
+    // Open / Create — pass full BU name in URL
+    document.getElementById('_paOpen').addEventListener('click',function(){
+      var md=(document.getElementById('_paMd').value||'').trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+      var bu=(document.getElementById('_paBu').value||'').trim();
+      if(!md||!bu){alert('Enter MD name and select a Business Unit.');return;}
+      window.location.href=window.location.pathname+'?md='+encodeURIComponent(md)+'&bu='+encodeURIComponent(bu);
+    });
+    document.getElementById('_paSkip').addEventListener('click',function(){d.remove();});
+  }
+
+  // ── Local file registry ──────────────────────────────────────────────────
+  var PA_FILES_KEY='mdIntPlanner_files_v1';
+  function _loadRegistry(){try{return JSON.parse(localStorage.getItem(PA_FILES_KEY)||'[]');}catch(e){return[];}}
+  function _saveRegistry(a){try{localStorage.setItem(PA_FILES_KEY,JSON.stringify(a));}catch(e){}}
+  function _registerFile(filename,meta){
+    var reg=_loadRegistry();
+    var idx=reg.findIndex(function(x){return x.filename===filename;});
+    var entry=Object.assign({filename:filename},meta||{});
+    if(idx>=0)reg[idx]=entry; else reg.push(entry);
+    _saveRegistry(reg);
+  }
+
+  // ── Parse PA response (handles stringified JSON from flows) ─────────────
+  function _parseResponse(r){
+    return r.text().then(function(txt){
+      try{return JSON.parse(txt);}catch(e){}
+      try{return JSON.parse(JSON.parse(txt));}catch(e){}
+      try{return JSON.parse(txt.replace(/^"|"$/g,'').replace(/\\"/g,'"').replace(/\\\\/g,'\\'));}catch(e){}
+      throw new Error('Could not parse response from flow');
+    });
+  }
+
+  // ── Pull ─────────────────────────────────────────────────────────────────
+  function _pull(){
+    if(!LOAD_URL||!SAVE_URL){alert('Paste your Load and Save flow URLs first.\nClick \u2699 in the SharePoint Sync card.');return;}
+    if(!_file){alert('No MD selected. Use the picker.');return;}
+    _status('Pulling…','#fbbf24');
+    var sep=LOAD_URL.indexOf('?')>=0?'&':'?';
+    fetch(LOAD_URL+sep+'filename='+_encFile(_file),{method:'GET'})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return _parseResponse(r);})
+      .then(function(data){
+        if(data.pushedAt)_lastTs=data.pushedAt;
+        if(window._app&&(data.profiles||data.curBu))window._app.applyState(data.profiles||{},data.curBu||'',data.session||null,data.mdRows||null);
+        _status('Pulled ✓','#86efac');
+        if(!_timer)_poll();
+      })
+      .catch(function(e){_status('Pull failed','#f87171');alert('Pull failed: '+e.message);});
+  }
+
+  // ── Push ─────────────────────────────────────────────────────────────────
+  function _push(){
+    if(!LOAD_URL||!SAVE_URL){alert('Paste your Load and Save flow URLs first.\nClick \u2699 in the SharePoint Sync card.');return;}
+    if(!_file){alert('No MD selected. Use the picker.');return;}
+    _status('Pushing…','#fbbf24');
+    var now=new Date().toISOString();
+    var s=window._app?window._app.getState():{};
+    var buSlug=_buKey.replace(/[&\/]+/g,'').replace(/\s*\(([^)]+)\)/g,'-$1').trim().replace(/\s+/g,'-').replace(/[^a-zA-Z0-9\-]/g,'').replace(/-+/g,'-').replace(/^-|-$/g,'');
+    fetch(SAVE_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({folder:'Builder/'+buSlug,filename:_file.split('/').pop(),bu:_buKey,profiles:s.profiles,curBu:s.curBu,session:s.session,mdRows:s.mdRows,pushedAt:now})})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);})
+      .then(function(){
+        _lastTs=now;_status('Saved ✓','#86efac');
+        var inp=(s.session&&s.session.inputs)||{};
+        _registerFile('Builder/'+_buKey+'/'+_file.split('/').pop(),{mdName:inp.mdName||'',curBu:s.curBu||_buKey||'',sl:inp.sl||'',startDate:inp.startDate||''});
+        if(!_timer)_poll();
+      })
+      .catch(function(e){_status('Save failed','#f87171');alert('Save failed: '+e.message);});
+  }
+
+  // ── 30s poll — refresh banner on colleague save ──────────────────────────
+  function _poll(){
+    if(_timer)clearInterval(_timer);
+    _timer=setInterval(_check,30000);
+    window.addEventListener('focus',_check);
+  }
+  function _check(){
+    if(!_file||!LOAD_URL)return;
+    var sep=LOAD_URL.indexOf('?')>=0?'&':'?';
+    fetch(LOAD_URL+sep+'filename='+_encFile(_file),{method:'GET'})
+      .then(function(r){return r.ok?_parseResponse(r):null;})
+      .then(function(d){
+        if(!d||!d.pushedAt||!_lastTs||d.pushedAt===_lastTs)return;
+        if(document.getElementById('_paBanner'))return;
+        var bn=document.createElement('div');
+        bn.id='_paBanner';
+        bn.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#1e6fbf;'
+          +'color:#fff;padding:8px 18px;display:flex;align-items:center;justify-content:space-between;'
+          +'gap:12px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.3);font-family:Arial,sans-serif';
+        var t=new Date(d.pushedAt).toLocaleTimeString();
+        bn.innerHTML='<span>&#128257; <strong>'+_file+' updated at '+t+' by a colleague.</strong></span>'
+          +'<div style="display:flex;gap:8px">'
+          +'<button onclick="document.getElementById(\'_paBanner\').remove();window._paPull()" '
+            +'style="background:#fff;color:#1e6fbf;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;font-weight:bold;font-size:11px">Refresh now</button>'
+          +'<button onclick="document.getElementById(\'_paBanner\').remove()" '
+            +'style="background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px">Dismiss</button>'
+          +'</div>';
+        document.body.insertBefore(bn,document.body.firstChild);
+        _lastTs=d.pushedAt;
+      }).catch(function(){});
+  }
+
+  // ── Auto-load on page open if ?md= is in URL ────────────────────────────
+  // Convert BU name to folder slug e.g. "Energy & Chemicals" -> "Energy-Chemicals"
+  function _buSlug(bu){
+    return (bu||'').replace(/[&\/]+/g,'').replace(/\s*\(([^)]+)\)/g,'-$1').trim()
+      .replace(/\s+/g,'-').replace(/[^a-zA-Z0-9\-]/g,'').replace(/-+/g,'-').replace(/^-|-$/g,'');
+  }
+
+  // Parse a CSV string into array of objects
+  function _parseCSV(txt){
+    var lines=(txt||'').trim().split(/\r?\n/).filter(Boolean);
+    if(lines.length<2)return[];
+    var hdrs=lines[0].split(',').map(function(h){return h.trim().replace(/"/g,'');});
+    return lines.slice(1).map(function(l){
+      var vals=l.split(',').map(function(v){return v.trim().replace(/"/g,'');});
+      var obj={};hdrs.forEach(function(h,i){obj[h]=vals[i]||'';});return obj;
+    });
+  }
+
+  // Load all 5 Admin CSVs for a BU and apply into tool source data
+  function _loadAdminCSVs(buKey,onDone){
+    var sl=_buSlug(buKey);
+    var base='Admin/'+sl+'/';
+    var sep=LOAD_URL.indexOf('?')>=0?'&':'?';
+    var files=['service_line_lookup.csv','key_contacts.csv','onboarding_sessions.csv','schedule_template.csv','videos.csv'];
+    _status('New MD — loading '+buKey+' templates…','#fbbf24');
+    // Fetch all 5 in parallel
+    Promise.all(files.map(function(f){
+      return fetch(LOAD_URL+sep+'filename='+_encFile(base+f),{method:'GET'})
+        .then(function(r){return r.ok?r.text():null;})
+        .then(function(txt){return{file:f,txt:txt};})
+        .catch(function(){return{file:f,txt:null};});
+    })).then(function(results){
+      // Apply each CSV into the current BU profile via window._app
+      if(!window._app)return;
+      var s=window._app.getState();
+      var bu=buKey;
+      if(!s.profiles[bu])s.profiles[bu]={};
+      var p=s.profiles[bu];
+      if(!p.lkExtraCols)p.lkExtraCols=[];
+
+      results.forEach(function(r){
+        if(!r.txt)return;
+        var rows=_parseCSV(r.txt);
+        if(!rows.length)return;
+
+        if(r.file==='service_line_lookup.csv'){
+          // Map CSV headers to tool field keys
+          p.lookup=rows.map(function(row){return{
+            sl:       row['Service Line']||'',
+            leader:   row['Leader']||'',
+            sgl:      row['Ops Lead']||'',
+            hrbp:     row['PBP']||'',
+            finance:  row['Finance']||'',
+            risk:     row['Risk & Contracting']||'',
+            people:   row['People & Perf.']||'',
+            marketing:row['Marketing']||'',
+            insight:  row['Insight Center']||'',
+            km:       row['Knowledge Mgmt']||''
+          };});
+        }
+        else if(r.file==='key_contacts.csv'){
+          p.roster=rows.map(function(row,i){return{
+            id:'rc'+i,
+            name: row['Name (First Last)']||'',
+            level:row['Level']||'MD',
+            sl:   row['Service Line']||'',
+            city: row['City']||'',
+            email:row['Email']||''
+          };});
+        }
+        else if(r.file==='onboarding_sessions.csv'){
+          p.onboarding=rows.map(function(row,i){return{
+            id:'ob'+i,
+            name:    row['Session Name']||'General Onboarding',
+            date:    row['Date (YYYY-MM-DD)']||'',
+            time:    row['Time (HH:MM)']||'',
+            location:row['Location']||'',
+            notes:   row['Notes']||''
+          };});
+        }
+        else if(r.file==='schedule_template.csv'){
+          p.template=rows.map(function(row){return{
+            id:        row['id']||('t'+Math.random()),
+            enabled:   row['enabled']!=='false',
+            topic:     row['topic']||'',
+            week:      row['week']||'1',
+            attendees: row['attendees']||'',
+            scheduler: row['scheduler']||'',
+            duration:  row['duration']||'',
+            notes:     row['notes']||'',
+            isDynamic: row['isDynamic']||'',
+            isManual:  row['isManual']==='true'
+          };});
+        }
+        else if(r.file==='videos.csv'){
+          p.videos=rows.map(function(row){return{
+            id:    row['id']||('v'+Math.random()),
+            title: row['title']||'',
+            url:   row['url']||''
+          };});
+        }
+      });
+
+      // Push updated profiles back into the tool
+      window._app.applyState(s.profiles, bu, null, null);
+      _status('Templates loaded from Admin/'+sl+' — fill & save','#fbbf24');
+      if(onDone)onDone();
+    }).catch(function(){
+      _status('Admin load failed — starting blank','#f87171');
+      if(onDone)onDone();
+    });
+  }
+
+  function _autoLoad(){
+    if(!_file||!LOAD_URL)return;
+    _status('Checking Builder…','#fbbf24');
+    var sep=LOAD_URL.indexOf('?')>=0?'&':'?';
+    // Step 1: check Builder/{BU}/{name}.json
+    fetch(LOAD_URL+sep+'filename='+_encFile(_file),{method:'GET'})
+      .then(function(r){
+        if(r.status===404||r.status===400||r.status===500){
+          // Not found in Builder — New MD, load Admin CSVs instead
+          _loadAdminCSVs(_buKey,function(){_poll();});
+          return null;
+        }
+        if(!r.ok)throw new Error('HTTP '+r.status);
+        return _parseResponse(r);
+      })
+      .then(function(data){
+        if(!data)return;
+        // Found in Builder — restore full saved plan
+        if(window._app&&(data.profiles||data.curBu)){
+          window._app.applyState(data.profiles||{},data.curBu||_buKey,data.session||null,data.mdRows||null);
+        }
+        if(data.pushedAt)_lastTs=data.pushedAt;
+        _status('Loaded from Builder ✓','#86efac');
+        _poll();
+      })
+      .catch(function(e){_status('Load failed','#f87171');alert('Load failed: '+e.message);});
+  }
+
+  // ── Inject card into Source Data tab (replaces old spSetupCard) ─────────
+  function _injectCard(){
+    var tab=document.getElementById('pane-source');
+    if(!tab||document.getElementById('_paCard'))return;
+    var w=document.createElement('div');
+    w.innerHTML=
+      '<div id="_paCard" style="background:#fff;border:2px solid #1e6fbf;border-radius:8px;margin-bottom:14px;overflow:hidden">'
+      +'<div style="background:#1e3a5f;padding:10px 16px;display:flex;align-items:center;justify-content:space-between">'
+        +'<span style="font-weight:bold;color:#fff;font-size:13px">&#9889; SharePoint Sync</span>'
+        +'<div style="display:flex;align-items:center;gap:8px">'
+          +'<span id="_paStatus2" style="font-size:10px;font-weight:bold;color:#fbbf24;background:rgba(255,255,255,.1);padding:2px 10px;border-radius:20px">Starting…</span>'
+          // gear button removed — URLs hardcoded
+        +'</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr">'
+        // Load flow
+        +'<div style="padding:14px 16px;border-right:1px solid #e5e7eb">'
+          +'<div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#6c757d;margin-bottom:8px">&#8595; Load Flow</div>'
+          +'<div style="font-size:11px;color:#555;margin-bottom:10px;line-height:1.6">Open an existing MD plan or create a new one from scratch.</div>'
+          +'<button id="_paPickerBtn" class="btn" type="button" style="width:100%;background:#7c3aed;color:#fff;border-color:#7c3aed">&#128197; Open / New MD</button>'
+          +'<div style="margin-top:8px;font-size:11px;color:#6c757d">Active: <strong id="_paCardFile" style="color:'+(_file?'#166534':'#b45309')+'">'+(_file||'No MD selected')+'</strong></div>'
+        +'</div>'
+        // Save flow
+        +'<div style="padding:14px 16px">'
+          +'<div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#6c757d;margin-bottom:8px">&#8593; Save Flow</div>'
+          +'<div style="font-size:11px;color:#555;margin-bottom:10px;line-height:1.6">Push the current plan to SharePoint. Pull to reload if a colleague has made changes.</div>'
+          +'<div style="display:flex;gap:8px">'
+            +'<button id="_paPushBtn" class="btn" type="button" style="flex:1;background:#16a34a;color:#fff;border-color:#16a34a">&#8593; Push</button>'
+            +'<button id="_paPullBtn" class="btn bt" type="button" style="flex:1">&#8595; Pull latest</button>'
+          +'</div>'
+          +'<div id="_paLastSync" style="margin-top:8px;font-size:10px;color:#adb5bd"></div>'
+        +'</div>'
+      +'</div>'
+      +'</div>';
+    // Hide old SP card, insert new one at top
+    var sp=document.getElementById('spSetupCard');
+    if(sp)sp.style.display='none';
+    tab.insertBefore(w,tab.firstChild);
+
+    document.getElementById('_paPullBtn').onclick=_pull;
+    document.getElementById('_paPushBtn').onclick=function(){_push();var ls=document.getElementById('_paLastSync');if(ls)ls.textContent='Last sync: '+new Date().toLocaleTimeString();};
+    document.getElementById('_paPickerBtn').onclick=_picker;
+    // gear removed
+  }
+
+  // ── Gear: paste flow URLs ────────────────────────────────────────────────
+  function _promptUrls(){
+    var load=prompt('LOAD Flow URL\n(GET request \u2014 flow reads ?filename= and returns JSON):\n',LOAD_URL||'');
+    if(load===null)return;
+    var save=prompt('SAVE Flow URL\n(POST request \u2014 flow receives JSON body and writes the file):\n',SAVE_URL||'');
+    if(save===null)return;
+    LOAD_URL=load.trim();SAVE_URL=save.trim();
+    try{localStorage.setItem(PA_KEY,JSON.stringify({loadUrl:LOAD_URL,saveUrl:SAVE_URL}));}catch(e){}
+    _status(LOAD_URL&&SAVE_URL?'URLs saved ✓':'Not configured',LOAD_URL&&SAVE_URL?'#86efac':'#fbbf24');
+  }
+
+  window._paPull=_pull;
+  window._paPush=_push;
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  function _init(){
+    _params();
+    setTimeout(function(){
+      _injectCard();
+      _badge();
+      if(typeof spAutoPullOnLoad==='function')spAutoPullOnLoad=function(){};
+      var t=setInterval(function(){
+        var app=document.getElementById('app');
+        if(app&&app.style.display==='block'){
+          clearInterval(t);
+          if(_file){setTimeout(_autoLoad,300);}
+          else{setTimeout(_picker,300);}
+        }
+      },100);
+    },700);
+  }
+
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_init);}
+  else{_init();}
+
+})();
+
+</script>
+</body>
+</html>
